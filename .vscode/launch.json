@@ -1,0 +1,111 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "调试编码器 basketballpass",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/EncoderAppStaticd",
+            "args": [
+                "-c",
+                "${workspaceFolder}/cfg/encoder_intra_vtm.cfg",
+                "-c",
+                "${workspaceFolder}/cfg/lossless/lossless.cfg",
+                "-c",
+                "${workspaceFolder}/cfg/per-sequence/BasketballPass.cfg",
+                "--FramesToBeEncoded=1"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+        },
+        {
+            "name": "调试解码器 basketballpass",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/DecoderAppStaticd",
+            "args": [
+                "-b",
+                "${workspaceFolder}/bin/BasketballPass.bin",
+                "-o",
+                "${workspaceFolder}/bin/BasketballPass_dec.yuv"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+        },
+        {
+            "name": "运行编码器 release",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/EncoderAppStatic",
+            "args": [
+                "-c",
+                "${workspaceFolder}/cfg/encoder_intra_vtm.cfg",
+                "-c",
+                "${workspaceFolder}/cfg/lossless/lossless.cfg",
+                "-c",
+                "${workspaceFolder}/cfg/per-sequence/BasketballPass.cfg",
+                "--FramesToBeEncoded=1"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+        },
+        {
+            "name": "运行解码器 release",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/DecoderAppStatic",
+            "args": [
+                "-b",
+                "${workspaceFolder}/bin/BasketballPass.bin",
+                "-o",
+                "${workspaceFolder}/bin/BasketballPass_dec.yuv"
+            ],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/bin",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+        },
+    ]
+}

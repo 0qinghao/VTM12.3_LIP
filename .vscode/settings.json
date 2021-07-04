@@ -1,0 +1,17 @@
+{
+    "files.associations": {
+		"*.xdc": "tcl",
+		"algorithm": "cpp",
+		"*.tcc": "cpp",
+		"deque": "cpp",
+		"list": "cpp",
+		"string": "cpp",
+		"vector": "cpp",
+		"cmath": "cpp",
+		"chrono": "cpp",
+		"random": "cpp",
+		"limits": "cpp",
+		"iostream": "cpp",
+		"ctime": "cpp"
+	}
+}
