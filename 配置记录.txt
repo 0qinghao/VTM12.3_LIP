@@ -1,0 +1,3 @@
+TemporalSubsampleRatio=1，否则每 8 帧才编码一次
+
+rm typedef.h REUSE_CU_RESULTS，简化，不影响码率性能 同时带来的编译错误需要做细微调整

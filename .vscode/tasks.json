@@ -1,35 +1,51 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-        {
-            "type": "shell",
-            "label": "清理 clean",
-            "command": "make",
-            "args": [
-                "clean"
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}"
-            },
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": []
-        },
-        {
-            "type": "shell",
-            "label": "构建所有 debug",
-            "command": "make",
-            "args": [
-                "-j",
-            ],
-            "options": {
-                "cwd": "${workspaceFolder}/build"
-            },
-            "presentation": {
-                "focus": true
-            },
-            "problemMatcher": []
-        },
-    ]
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "清理 clean",
+			"command": "make",
+			"args": [
+				"clean"
+			],
+			"options": {
+				"cwd": "${workspaceFolder}"
+			},
+			"presentation": {
+				"focus": true
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "构建所有 debug",
+			"command": "make",
+			"args": [
+				"-j",
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			},
+			"presentation": {
+				"focus": true
+			},
+			"problemMatcher": []
+		},
+		{
+			"type": "shell",
+			"label": "构建 Enc debug",
+			"command": "make",
+			"args": [
+				"EncoderApp",
+				"-j",
+			],
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			},
+			"presentation": {
+				"focus": true
+			},
+			"problemMatcher": []
+		},
+	]
 }

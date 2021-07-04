@@ -68,63 +68,62 @@ class EncApp : public EncAppCfg, public AUWriterIf
 {
 private:
   // class interface
-  EncLib            m_cEncLib;                    ///< encoder class
-  VideoIOYuv        m_cVideoIOYuvInputFile;       ///< input YUV file
-  VideoIOYuv        m_cVideoIOYuvReconFile;       ///< output reconstruction file
-  int               m_iFrameRcvd;                 ///< number of received frames
-  uint32_t          m_essentialBytes;
-  uint32_t          m_totalBytes;
-  fstream&          m_bitstream;
+  EncLib     m_cEncLib;                ///< encoder class
+  VideoIOYuv m_cVideoIOYuvInputFile;   ///< input YUV file
+  VideoIOYuv m_cVideoIOYuvReconFile;   ///< output reconstruction file
+  int        m_iFrameRcvd;             ///< number of received frames
+  uint32_t   m_essentialBytes;
+  uint32_t   m_totalBytes;
+  fstream &  m_bitstream;
 #if JVET_O0756_CALCULATE_HDRMETRICS
   std::chrono::duration<long long, ratio<1, 1000000000>> m_metricTime;
 #endif
 
 private:
   // initialization
-  void xCreateLib( std::list<PelUnitBuf*>& recBufList, const int layerId );         ///< create files & encoder class
-  void xInitLibCfg ();                           ///< initialize internal variables
-  void xInitLib();                               ///< initialize encoder class
-  void xDestroyLib ();                           ///< destroy encoder class
+  void xCreateLib(std::list<PelUnitBuf *> &recBufList, const int layerId);   ///< create files & encoder class
+  void xInitLibCfg();                                                        ///< initialize internal variables
+  void xInitLib();                                                           ///< initialize encoder class
+  void xDestroyLib();                                                        ///< destroy encoder class
 
   // file I/O
-  void xWriteOutput     ( int iNumEncoded, std::list<PelUnitBuf*>& recBufList
-                         );                      ///< write bitstream to file
-  void rateStatsAccum   ( const AccessUnit& au, const std::vector<uint32_t>& stats);
-  void printRateSummary ();
+  void xWriteOutput(int iNumEncoded, std::list<PelUnitBuf *> &recBufList);   ///< write bitstream to file
+  void rateStatsAccum(const AccessUnit &au, const std::vector<uint32_t> &stats);
+  void printRateSummary();
   void printChromaFormat();
 
-  std::list<PelUnitBuf*> m_recBufList;
-  int                    m_numEncoded;
-  PelStorage*            m_trueOrgPic;
-  PelStorage*            m_orgPic;
-  PelStorage*            m_filteredOrgPic;
+  std::list<PelUnitBuf *> m_recBufList;
+  int                     m_numEncoded;
+  PelStorage *            m_trueOrgPic;
+  PelStorage *            m_orgPic;
+  PelStorage *            m_filteredOrgPic;
 #if EXTENSION_360_VIDEO
-  TExt360AppEncTop*      m_ext360;
+  TExt360AppEncTop *m_ext360;
 #endif
-  EncTemporalFilter      m_temporalFilter;
-  bool m_flush;
+  EncTemporalFilter m_temporalFilter;
+  bool              m_flush;
 
 public:
-  EncApp( fstream& bitStream, EncLibCommon* encLibCommon );
+  EncApp(fstream &bitStream, EncLibCommon *encLibCommon);
   virtual ~EncApp();
 
-  int   getMaxLayers() const { return m_maxLayers; }
-  void  createLib( const int layerIdx );
-  void  destroyLib();
-  bool  encodePrep( bool& eos );
-  bool  encode();                               ///< main encoding function
+  int  getMaxLayers() const { return m_maxLayers; }
+  void createLib(const int layerIdx);
+  void destroyLib();
+  bool encodePrep(bool &eos);
+  bool encode();   ///< main encoding function
 
-  void  outputAU( const AccessUnit& au );
+  void outputAU(const AccessUnit &au);
 
 #if JVET_O0756_CALCULATE_HDRMETRICS
-  std::chrono::duration<long long, ratio<1, 1000000000>> getMetricTime()    const { return m_metricTime; };
+  std::chrono::duration<long long, ratio<1, 1000000000>> getMetricTime() const { return m_metricTime; };
 #endif
-  VPS * getVPS() { return m_cEncLib.getVPS(); }
-  int   getChromaFormatIDC() const { return m_cEncLib.getChromaFormatIdc(); }
-  int   getBitDepth() const { return m_cEncLib.getBitDepth(CHANNEL_TYPE_LUMA); }
-};// END CLASS DEFINITION EncApp
+  VPS *getVPS() { return m_cEncLib.getVPS(); }
+  //   int   getChromaFormatIDC() const { return m_cEncLib.getChromaFormatIdc(); }
+  int getChromaFormatIDC() { return m_cEncLib.getChromaFormatIdc(); }
+  int getBitDepth() const { return m_cEncLib.getBitDepth(CHANNEL_TYPE_LUMA); }
+};   // END CLASS DEFINITION EncApp
 
 //! \}
 
-#endif // __ENCAPP__
-
+#endif   // __ENCAPP__

@@ -1,0 +1,59 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "encoder",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/EncoderAppStaticd",               //workspacFolder表示当前工作目录，如NewCodec_HM15这个文件夹
+            "args": ["-c",
+                "${workspaceFolder}/test/encoder_intra_vtm.cfg",  //第一个配置文件
+                "-c",
+                "${workspaceFolder}/test/lossless.cfg",//第二个配置文件，其中关于测试视频的目录也应当基于NewCodec_HM15这个文件夹
+                "-c",
+                "${workspaceFolder}/test/BQSquare.cfg",
+                ">",
+                "${workspaceFolder}/test/out.txt"
+            ],      
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "decoder",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/DecoderAppStaticd",               //workspacFolder表示当前工作目录，如NewCodec_HM15这个文件夹
+            "args": ["-b",
+                "${workspaceFolder}/str.bin",  //第一个配置文件
+                "-o",
+                "${workspaceFolder}/test/dec.yuv"
+            ],      
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "为 gdb 启用整齐打印",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+
+    ]
+}
