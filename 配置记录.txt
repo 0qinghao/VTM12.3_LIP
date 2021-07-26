@@ -4,3 +4,4 @@ rm typedef.h REUSE_CU_RESULTS，简化，不影响码率性能 同时带来的�
 
 BDPCM 暂时关
 
+GDR_ENABLED 0 不影响性能 简化代码

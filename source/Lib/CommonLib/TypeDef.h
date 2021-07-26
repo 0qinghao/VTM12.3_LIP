@@ -59,7 +59,7 @@
 #define JVET_S0078_NOOUTPUTPRIORPICFLAG                   0 // JVET-S0078: Handling of NoOutputOfPriorPicsFlag in output process
 
 //########### place macros to be be kept below this line ###############
-#define GDR_ENABLED   1
+#define GDR_ENABLED   0
 
 #if GDR_ENABLED
 #define GDR_LEAK_TEST  0

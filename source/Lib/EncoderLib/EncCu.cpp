@@ -1633,8 +1633,13 @@ bool EncCu::xCheckRDCostIntra(CodingStructure *&tempCS, CodingStructure *&bestCS
             validCandRet = m_pcIntraSearch->estIntraPredLumaQT(cu, partitioner, bestCostSoFar, mtsFlag,
                                                                startMTSIdx[trGrpIdx], endMTSIdx[trGrpIdx],
                                                                (trGrpIdx > 0), !cu.colorTransform ? bestCS : nullptr);
-            // m_pcIntraSearch->estIntraPredLumaQT(cu, partitioner, bestCostSoFar, mtsFlag, startMTSIdx[trGrpIdx],
-            // endMTSIdx[trGrpIdx], (trGrpIdx > 0), !cu.colorTransform ? bestCS : nullptr);
+            // 没法直接取出来，还是用返回值方法取吧
+            // CodingStructure *bestCS =
+            //   m_pBestCS[gp_sizeIdxInfo->idxFrom(cu.lwidth())][gp_sizeIdxInfo->idxFrom(cu.lheight())];
+            // double bestCostBP = bestCS->cost;
+            // m_pcIntraSearch->estIntraPredLumaQTLIP(cu, partitioner, bestCostSoFar, mtsFlag, startMTSIdx[trGrpIdx],
+            //                                     endMTSIdx[trGrpIdx], (trGrpIdx > 0),
+            //                                     !cu.colorTransform ? bestCS : nullptr);
             if ((!validCandRet || (cu.ispMode && cu.firstTU->cbf[COMPONENT_Y] == 0)))
             {
               continue;
