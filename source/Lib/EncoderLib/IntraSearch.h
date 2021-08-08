@@ -221,16 +221,21 @@ private:
     int      mRefId;     // PU::multiRefIdx
     uint8_t  ispMod;     // CU::ispMode
     uint32_t modeId;     // PU::intraDir[CHANNEL_TYPE_LUMA]
+    bool     LIPFlg;
 
-    ModeInfo() : mipFlg(false), mipTrFlg(false), mRefId(0), ispMod(NOT_INTRA_SUBPARTITIONS), modeId(0) {}
+    ModeInfo() : mipFlg(false), mipTrFlg(false), mRefId(0), ispMod(NOT_INTRA_SUBPARTITIONS), modeId(0), LIPFlg(false) {}
     ModeInfo(const bool mipf, const bool miptf, const int mrid, const uint8_t ispm, const uint32_t mode)
-      : mipFlg(mipf), mipTrFlg(miptf), mRefId(mrid), ispMod(ispm), modeId(mode)
+      : mipFlg(mipf), mipTrFlg(miptf), mRefId(mrid), ispMod(ispm), modeId(mode), LIPFlg(false)
+    {
+    }
+    ModeInfo(const bool mipf, const bool miptf, const int mrid, const uint8_t ispm, const uint32_t mode, bool LIPf)
+      : mipFlg(mipf), mipTrFlg(miptf), mRefId(mrid), ispMod(ispm), modeId(mode), LIPFlg(LIPf)
     {
     }
     bool operator==(const ModeInfo cmp) const
     {
       return (mipFlg == cmp.mipFlg && mipTrFlg == cmp.mipTrFlg && mRefId == cmp.mRefId && ispMod == cmp.ispMod
-              && modeId == cmp.modeId);
+              && modeId == cmp.modeId && LIPFlg == cmp.LIPFlg);
     }
   };
   struct ModeInfoWithCost : public ModeInfo

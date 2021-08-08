@@ -12,6 +12,23 @@
 		"random": "cpp",
 		"limits": "cpp",
 		"iostream": "cpp",
-		"ctime": "cpp"
+		"ctime": "cpp",
+		"atomic": "cpp",
+		"bitset": "cpp",
+		"unordered_map": "cpp",
+		"iterator": "cpp",
+		"memory_resource": "cpp",
+		"optional": "cpp",
+		"string_view": "cpp",
+		"fstream": "cpp",
+		"istream": "cpp",
+		"ostream": "cpp",
+		"sstream": "cpp",
+		"streambuf": "cpp",
+		"system_error": "cpp",
+		"functional": "cpp",
+		"tuple": "cpp",
+		"new": "cpp",
+		"stdexcept": "cpp"
 	}
 }

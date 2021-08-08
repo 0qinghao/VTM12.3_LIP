@@ -373,6 +373,7 @@ struct IntraPredictionData
   uint32_t  intraDir[MAX_NUM_CHANNEL_TYPE];
   bool      mipTransposedFlag;
   int       multiRefIdx;
+  bool      LIPPUFlag;
 };
 
 struct InterPredictionData

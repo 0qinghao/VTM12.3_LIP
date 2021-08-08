@@ -523,7 +523,8 @@ void PredictionUnit::initData()
   intraDir[0] = DC_IDX;
   intraDir[1] = PLANAR_IDX;
   mipTransposedFlag = false;
-  multiRefIdx = 0;
+  LIPPUFlag         = false;
+  multiRefIdx       = 0;
 
   // inter data
   mergeFlag   = false;
@@ -574,7 +575,8 @@ PredictionUnit& PredictionUnit::operator=(const IntraPredictionData& predData)
     intraDir[i] = predData.intraDir[i];
   }
   mipTransposedFlag = predData.mipTransposedFlag;
-  multiRefIdx = predData.multiRefIdx;
+  LIPPUFlag         = predData.LIPPUFlag;
+  multiRefIdx       = predData.multiRefIdx;
 
   return *this;
 }
@@ -625,7 +627,8 @@ PredictionUnit& PredictionUnit::operator=( const PredictionUnit& other )
     intraDir[ i ] = other.intraDir[ i ];
   }
   mipTransposedFlag = other.mipTransposedFlag;
-  multiRefIdx = other.multiRefIdx;
+  LIPPUFlag         = other.LIPPUFlag;
+  multiRefIdx       = other.multiRefIdx;
 
   mergeFlag   = other.mergeFlag;
   regularMergeFlag = other.regularMergeFlag;

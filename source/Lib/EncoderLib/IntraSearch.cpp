@@ -806,6 +806,12 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
 
   // after this point, don't use numModesForFullRD
   //===== check modes (using r-d costs) =====
+  // 加入 LIP 模式
+  ModeInfo modeLIP(false, false, 0, NOT_INTRA_SUBPARTITIONS, 0, true);
+  numModesForFullRD++;
+  uiRdModeList.push_back(modeLIP);
+  CandCostList.push_back(0);
+
   ModeInfo uiBestPUMode;
   int      bestBDPCMMode    = 0;
   double   bestCostNonBDPCM = MAX_DOUBLE;
@@ -837,6 +843,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     cu.ispMode                     = uiOrgMode.ispMod;
     pu.multiRefIdx                 = uiOrgMode.mRefId;
     pu.intraDir[CHANNEL_TYPE_LUMA] = uiOrgMode.modeId;
+    pu.LIPPUFlag                   = uiOrgMode.LIPFlg;
 
     CHECK(cu.mipFlag && pu.multiRefIdx, "Error: combination of MIP and MRL not supported");
     CHECK(pu.multiRefIdx && (pu.intraDir[0] == PLANAR_IDX), "Error: combination of MRL and Planar mode not supported");
@@ -854,14 +861,23 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
 
     bool tmpValidReturn = false;
 
-    tmpValidReturn = xRecurIntraCodingLumaQT(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId, mtsLastCheckId,
-                                             moreProbMTSIdxFirst);
+    if (pu.LIPPUFlag == false)
+    {
+      tmpValidReturn = xRecurIntraCodingLumaQT(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId, mtsLastCheckId,
+                                               moreProbMTSIdxFirst);
 
-    validReturn |= tmpValidReturn;
+      validReturn |= tmpValidReturn;
+    }
+    else
+    {
+      //   tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
+      //                                               mtsLastCheckId, moreProbMTSIdxFirst);
+      validReturn |= false;
+    }
 
-    DTRACE(g_trace_ctx, D_INTRA_COST, "IntraCost T [x=%d,y=%d,w=%d,h=%d] %f (%d,%d,%d,%d,%d,%d) \n", cu.blocks[0].x,
-           cu.blocks[0].y, (int) width, (int) height, csTemp->cost, uiOrgMode.modeId, uiOrgMode.ispMod, pu.multiRefIdx,
-           cu.mipFlag, cu.lfnstIdx, cu.mtsFlag);
+    // DTRACE(g_trace_ctx, D_INTRA_COST, "IntraCost T [x=%d,y=%d,w=%d,h=%d] %f (%d,%d,%d,%d,%d,%d) \n", cu.blocks[0].x,
+    //        cu.blocks[0].y, (int) width, (int) height, csTemp->cost, uiOrgMode.modeId, uiOrgMode.ispMod,
+    //        pu.multiRefIdx, cu.mipFlag, cu.lfnstIdx, cu.mtsFlag);
 
     if (tmpValidReturn)
     {
@@ -902,6 +918,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     pu.multiRefIdx                 = uiBestPUMode.mRefId;
     pu.intraDir[CHANNEL_TYPE_LUMA] = uiBestPUMode.modeId;
     cu.bdpcmMode                   = bestBDPCMMode;
+    pu.LIPPUFlag                   = uiBestPUMode.LIPFlg;
   }
 
   //===== reset context models =====
