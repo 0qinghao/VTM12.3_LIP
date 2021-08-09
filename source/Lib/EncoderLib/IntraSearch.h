@@ -502,6 +502,8 @@ protected:
                                        const PartSplit ispType = TU_NO_ISP);
   bool       xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &pm, bool mtsCheckRangeFlag = false,
                                      int mtsFirstCheckId = 0, int mtsLastCheckId = 0, bool moreProbMTSIdxFirst = false);
+  bool       xRecurIntraCodingLumaQTLIP(CodingStructure &cs, Partitioner &pm, bool mtsCheckRangeFlag = false,
+                                        int mtsFirstCheckId = 0, int mtsLastCheckId = 0, bool moreProbMTSIdxFirst = false);
   bool       xRecurIntraCodingACTQT(CodingStructure &cs, Partitioner &pm, bool mtsCheckRangeFlag = false,
                                     int mtsFirstCheckId = 0, int mtsLastCheckId = 0, bool moreProbMTSIdxFirst = false);
   bool       xIntraCodingLumaISP(CodingStructure &cs, Partitioner &pm, const double bestCostSoFar = MAX_DOUBLE);

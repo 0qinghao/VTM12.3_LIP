@@ -870,9 +870,10 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     }
     else
     {
-      //   tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
-      //                                               mtsLastCheckId, moreProbMTSIdxFirst);
-      validReturn |= false;
+      tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
+                                                  mtsLastCheckId, moreProbMTSIdxFirst);
+      tmpValidReturn = false;
+      validReturn |= tmpValidReturn;
     }
 
     // DTRACE(g_trace_ctx, D_INTRA_COST, "IntraCost T [x=%d,y=%d,w=%d,h=%d] %f (%d,%d,%d,%d,%d,%d) \n", cu.blocks[0].x,
@@ -4420,6 +4421,207 @@ bool IntraSearch::xIntraCodingLumaISP(CodingStructure &cs, Partitioner &partitio
   return !earlySkipISP;
 }
 
+bool IntraSearch::xRecurIntraCodingLumaQTLIP(CodingStructure &cs, Partitioner &partitioner, bool mtsCheckRangeFlag,
+                                             int mtsFirstCheckId, int mtsLastCheckId, bool moreProbMTSIdxFirst)
+{
+  const UnitArea &  currArea    = partitioner.currArea();
+  const CodingUnit &cu          = *cs.getCU(currArea.lumaPos(), partitioner.chType);
+  uint32_t          currDepth   = partitioner.currTrDepth;
+  const SPS &       sps         = *cs.sps;
+  bool              bCheckFull  = true;
+  bool              bCheckSplit = false;
+  bCheckFull                    = !partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
+  bCheckSplit                   = partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
+  const Slice &slice            = *cs.slice;
+
+  CHECK(cu.ispMode != NOT_INTRA_SUBPARTITIONS, "Use the function xIntraCodingLumaISP for ISP cases.");
+
+  uint32_t numSig = 0;
+
+  double     dSingleCost                   = MAX_DOUBLE;
+  Distortion uiSingleDistLuma              = 0;
+  uint64_t   singleFracBits                = 0;
+  bool       checkTransformSkip            = sps.getTransformSkipEnabledFlag();
+  int        bestModeId[MAX_NUM_COMPONENT] = { 0, 0, 0 };
+  uint8_t    nNumTransformCands            = cu.mtsFlag ? 4 : 1;
+  uint8_t    numTransformIndexCands        = nNumTransformCands;
+
+  const TempCtx ctxStart(m_CtxCache, m_CABACEstimator->getCtx());
+  TempCtx       ctxBest(m_CtxCache);
+
+  CodingStructure *csSplit = nullptr;
+  CodingStructure *csFull  = nullptr;
+
+  CUCtx cuCtx;
+  cuCtx.isDQPCoded         = true;
+  cuCtx.isChromaQpAdjCoded = true;
+
+  if (bCheckSplit)
+  {
+    csSplit = &cs;
+  }
+  else if (bCheckFull)
+  {
+    csFull = &cs;
+  }
+
+  bool validReturnFull = false;
+
+  if (bCheckFull)
+  {
+    csFull->cost = 0.0;
+
+    TransformUnit &tu = csFull->addTU(CS::getArea(*csFull, currArea, partitioner.chType), partitioner.chType);
+    tu.depth          = currDepth;
+
+    const bool          tsAllowed  = TU::isTSAllowed(tu, COMPONENT_Y);
+    const bool          mtsAllowed = CU::isMTSAllowed(cu, COMPONENT_Y);
+    std::vector<TrMode> trModes;
+
+    nNumTransformCands = 1 + (tsAllowed ? 1 : 0) + (mtsAllowed ? 4 : 0);   // DCT + TS + 4 MTS = 6 tests
+    //   if (m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless())
+    //   {
+    nNumTransformCands = 1;
+    CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
+    // if (cu.bdpcmMode)   // x ?
+    // {
+    //   trModes.push_back(TrMode(0, true));
+    // }
+    // else
+    // {
+    trModes.push_back(TrMode(1, true));
+    // }
+    //   }
+
+    CHECK(!tu.Y().valid(), "Invalid TU");
+
+    CodingStructure &saveCS = *m_pSaveCS[0];
+
+    TransformUnit *tmpTU = nullptr;
+
+    Distortion singleDistTmpLuma = 0;
+    uint64_t   singleTmpFracBits = 0;
+    double     singleCostTmp     = 0;
+    int        firstCheckId      = (sps.getUseLFNST() && mtsCheckRangeFlag && cu.mtsFlag) ? mtsFirstCheckId : 0;
+
+    // we add the MTS candidates to the loop. TransformSkip will still be the last one to be checked (when modeId ==
+    // lastCheckId) as long as checkTransformSkip is true
+    int  lastCheckId      = sps.getUseLFNST() ? ((mtsCheckRangeFlag && cu.mtsFlag)
+                                                   ? (mtsLastCheckId + (int) checkTransformSkip)
+                                                   : (numTransformIndexCands - (firstCheckId + 1) + (int) checkTransformSkip))
+                                              : trModes[nNumTransformCands - 1].first;
+    bool isNotOnlyOneMode = sps.getUseLFNST() ? lastCheckId != firstCheckId : nNumTransformCands != 1;
+
+    bool cbfBestMode      = false;
+    bool cbfBestModeValid = false;
+    bool cbfDCT2          = true;
+
+    for (int modeId = firstCheckId; modeId <= (sps.getUseLFNST() ? lastCheckId : (nNumTransformCands - 1)); modeId++)
+    {
+      uint8_t transformIndex = modeId;
+
+      tu.mtsIdx[COMPONENT_Y] = trModes[modeId].first;
+
+      int default0Save1Load2 = 0;
+      singleDistTmpLuma      = 0;
+
+      xIntraCodingTUBlock(tu, COMPONENT_Y, singleDistTmpLuma, default0Save1Load2, &numSig);
+
+      cuCtx.mtsLastScanPos             = false;
+      cuCtx.violatesMtsCoeffConstraint = false;
+      //----- determine rate and r-d cost -----
+      singleTmpFracBits = xGetIntraFracBitsQT(*csFull, partitioner, true, false, -1, TU_NO_ISP, &cuCtx);
+
+      singleCostTmp = m_pcRdCost->calcRdCost(singleTmpFracBits, singleDistTmpLuma);
+
+      if (singleCostTmp < dSingleCost)
+      {
+        dSingleCost      = singleCostTmp;
+        uiSingleDistLuma = singleDistTmpLuma;
+        singleFracBits   = singleTmpFracBits;
+
+        bestModeId[COMPONENT_Y] = trModes[modeId].first;
+      }
+    }
+
+    csFull->cost += dSingleCost;
+    csFull->dist += uiSingleDistLuma;
+    csFull->fracBits += singleFracBits;
+  }
+
+  bool validReturnSplit = false;
+  if (bCheckSplit)
+  {
+    //----- store full entropy coding status, load original entropy coding status -----
+
+    //----- code splitted block -----
+    csSplit->cost = 0;
+
+    bool uiSplitCbfLuma  = false;
+    bool splitIsSelected = true;
+    if (partitioner.canSplit(TU_MAX_TR_SPLIT, cs))
+    {
+      partitioner.splitCurrArea(TU_MAX_TR_SPLIT, cs);
+    }
+
+    do
+    {
+      bool tmpValidReturnSplit =
+        xRecurIntraCodingLumaQT(*csSplit, partitioner, false, mtsCheckRangeFlag, mtsFirstCheckId, mtsLastCheckId);
+
+      csSplit->setDecomp(partitioner.currArea().Y());
+
+      uiSplitCbfLuma |= TU::getCbfAtDepth(*csSplit->getTU(partitioner.currArea().lumaPos(), partitioner.chType, -1),
+                                          COMPONENT_Y, partitioner.currTrDepth);
+
+    } while (partitioner.nextPart(*csSplit));
+
+    partitioner.exitCurrSplit();
+
+    if (splitIsSelected)
+    {
+      for (auto &ptu: csSplit->tus)
+      {
+        if (currArea.Y().contains(ptu->Y()))
+        {
+          TU::setCbfAtDepth(*ptu, COMPONENT_Y, currDepth, uiSplitCbfLuma ? 1 : 0);
+        }
+      }
+
+      //----- restore context states -----
+      m_CABACEstimator->getCtx() = ctxStart;
+
+      cuCtx.violatesLfnstConstrained[CHANNEL_TYPE_LUMA]   = false;
+      cuCtx.violatesLfnstConstrained[CHANNEL_TYPE_CHROMA] = false;
+      cuCtx.lfnstLastScanPos                              = false;
+      cuCtx.violatesMtsCoeffConstraint                    = false;
+      cuCtx.mtsLastScanPos                                = false;
+
+      //----- determine rate and r-d cost -----
+      csSplit->fracBits = xGetIntraFracBitsQT(*csSplit, partitioner, true, false, -1, TU_NO_ISP, &cuCtx);
+
+      //--- update cost ---
+      csSplit->cost = m_pcRdCost->calcRdCost(csSplit->fracBits, csSplit->dist);
+
+      validReturnSplit = true;
+    }
+  }
+
+  bool retVal = false;
+  if (csFull || csSplit)
+  {
+    if (!sps.getUseLFNST() || validReturnFull || validReturnSplit)
+    {
+      // otherwise this would've happened in useSubStructure
+      cs.picture->getRecoBuf(currArea.Y()).copyFrom(cs.getRecoBuf(currArea.Y()));
+      cs.picture->getPredBuf(currArea.Y()).copyFrom(cs.getPredBuf(currArea.Y()));
+      cs.cost = m_pcRdCost->calcRdCost(cs.fracBits, cs.dist);
+      retVal  = true;
+    }
+  }
+  return retVal;
+}
+
 bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &partitioner, bool mtsCheckRangeFlag,
                                           int mtsFirstCheckId, int mtsLastCheckId, bool moreProbMTSIdxFirst)
 {
@@ -4477,7 +4679,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
     const bool          mtsAllowed = CU::isMTSAllowed(cu, COMPONENT_Y);
     std::vector<TrMode> trModes;
 
-    if (sps.getUseLFNST())
+    if (sps.getUseLFNST())   // x
     {
       checkTransformSkip &= tsAllowed;
       checkTransformSkip &= !cu.mtsFlag;
@@ -4496,7 +4698,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       {
         nNumTransformCands = 1;
         CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
-        if (cu.bdpcmMode)
+        if (cu.bdpcmMode)   // x ?
         {
           trModes.push_back(TrMode(0, true));
         }
@@ -4505,7 +4707,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
           trModes.push_back(TrMode(1, true));
         }
       }
-      else
+      else   // x
       {
         trModes.push_back(TrMode(0, true));   // DCT2
         if (tsAllowed)
@@ -4541,7 +4743,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
                                               : trModes[nNumTransformCands - 1].first;
     bool isNotOnlyOneMode = sps.getUseLFNST() ? lastCheckId != firstCheckId : nNumTransformCands != 1;
 
-    if (isNotOnlyOneMode)
+    if (isNotOnlyOneMode)   // x
     {
       saveCS.pcv     = cs.pcv;
       saveCS.picture = cs.picture;
@@ -4558,7 +4760,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
     {
       uint8_t transformIndex = modeId;
 
-      if (sps.getUseLFNST())
+      if (sps.getUseLFNST())   // x
       {
         if ((transformIndex < lastCheckId)
             || ((transformIndex == lastCheckId) && !checkTransformSkip))   // we avoid this if the mode is transformSkip
@@ -4572,7 +4774,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       }
       else
       {
-        if (!(m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless()))
+        if (!(m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless()))   // x
         {
           if (!cbfDCT2 || (m_pcEncCfg->getUseTransformSkipFast() && bestModeId[COMPONENT_Y] == MTS_SKIP))
           {
@@ -4586,7 +4788,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
         tu.mtsIdx[COMPONENT_Y] = trModes[modeId].first;
       }
 
-      if ((modeId != firstCheckId) && isNotOnlyOneMode)
+      if ((modeId != firstCheckId) && isNotOnlyOneMode)   // x
       {
         m_CABACEstimator->getCtx() = ctxStart;
       }
@@ -4594,11 +4796,11 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       int default0Save1Load2 = 0;
       singleDistTmpLuma      = 0;
 
-      if (modeId == firstCheckId && (sps.getUseLFNST() ? (modeId != lastCheckId) : (nNumTransformCands > 1)))
+      if (modeId == firstCheckId && (sps.getUseLFNST() ? (modeId != lastCheckId) : (nNumTransformCands > 1)))   // x
       {
         default0Save1Load2 = 1;
       }
-      else if (modeId != firstCheckId)
+      else if (modeId != firstCheckId)   // x
       {
         if (sps.getUseLFNST() && !cbfBestModeValid)
         {
@@ -4609,7 +4811,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
           default0Save1Load2 = 2;
         }
       }
-      if (sps.getUseLFNST())
+      if (sps.getUseLFNST())   // x
       {
         if (cu.mtsFlag)
         {
@@ -4665,7 +4867,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       }
       else
       {
-        if (nNumTransformCands > 1)
+        if (nNumTransformCands > 1)   // x
         {
           xIntraCodingTUBlock(tu, COMPONENT_Y, singleDistTmpLuma, default0Save1Load2, &numSig,
                               modeId == 0 ? &trModes : nullptr, true);
@@ -4689,7 +4891,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       cuCtx.mtsLastScanPos             = false;
       cuCtx.violatesMtsCoeffConstraint = false;
       //----- determine rate and r-d cost -----
-      if ((sps.getUseLFNST() ? (modeId == lastCheckId && modeId != 0 && checkTransformSkip)
+      if ((sps.getUseLFNST() ? (modeId == lastCheckId && modeId != 0 && checkTransformSkip)   // x
                              : (trModes[modeId].first != 0))
           && !TU::getCbfAtDepth(tu, COMPONENT_Y, currDepth))
       {
@@ -4707,7 +4909,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       else
       {
         singleTmpFracBits = xGetIntraFracBitsQT(*csFull, partitioner, true, false, -1, TU_NO_ISP, &cuCtx);
-        if (tu.mtsIdx[COMPONENT_Y] > MTS_SKIP)
+        if (tu.mtsIdx[COMPONENT_Y] > MTS_SKIP)   // x
         {
           if (!cuCtx.mtsLastScanPos)
           {
@@ -4730,7 +4932,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
         uiSingleDistLuma = singleDistTmpLuma;
         singleFracBits   = singleTmpFracBits;
 
-        if (sps.getUseLFNST())
+        if (sps.getUseLFNST())   // x
         {
           bestModeId[COMPONENT_Y] = modeId;
           cbfBestMode             = TU::getCbfAtDepth(tu, COMPONENT_Y, currDepth);
@@ -4740,13 +4942,13 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
         else
         {
           bestModeId[COMPONENT_Y] = trModes[modeId].first;
-          if (trModes[modeId].first == 0)
+          if (trModes[modeId].first == 0)   // x
           {
             cbfDCT2 = TU::getCbfAtDepth(tu, COMPONENT_Y, currDepth);
           }
         }
 
-        if (bestModeId[COMPONENT_Y] != lastCheckId)
+        if (bestModeId[COMPONENT_Y] != lastCheckId)   // x
         {
           saveCS.getPredBuf(tu.Y()).copyFrom(csFull->getPredBuf(tu.Y()));
           saveCS.getRecoBuf(tu.Y()).copyFrom(csFull->getRecoBuf(tu.Y()));
@@ -4764,7 +4966,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       }
     }
 
-    if (sps.getUseLFNST() && !validReturnFull)
+    if (sps.getUseLFNST() && !validReturnFull)   // x
     {
       csFull->cost = MAX_DOUBLE;
 
@@ -4775,7 +4977,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
     }
     else
     {
-      if (bestModeId[COMPONENT_Y] != lastCheckId)
+      if (bestModeId[COMPONENT_Y] != lastCheckId)   // x
       {
         csFull->getPredBuf(tu.Y()).copyFrom(saveCS.getPredBuf(tu.Y()));
         csFull->getRecoBuf(tu.Y()).copyFrom(saveCS.getRecoBuf(tu.Y()));
@@ -4793,7 +4995,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
           m_CABACEstimator->getCtx() = ctxBest;
         }
       }
-      else if (bCheckSplit)
+      else if (bCheckSplit)   // x
       {
         ctxBest = m_CABACEstimator->getCtx();
       }
@@ -4808,7 +5010,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
   if (bCheckSplit)
   {
     //----- store full entropy coding status, load original entropy coding status -----
-    if (bCheckFull)
+    if (bCheckFull)   // x
     {
       m_CABACEstimator->getCtx() = ctxStart;
     }
@@ -4826,7 +5028,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
     {
       bool tmpValidReturnSplit =
         xRecurIntraCodingLumaQT(*csSplit, partitioner, false, mtsCheckRangeFlag, mtsFirstCheckId, mtsLastCheckId);
-      if (sps.getUseLFNST() && !tmpValidReturnSplit)
+      if (sps.getUseLFNST() && !tmpValidReturnSplit)   // x
       {
         splitIsSelected = false;
         break;

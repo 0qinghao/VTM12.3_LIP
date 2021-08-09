@@ -50,6 +50,9 @@
 #include <assert.h>
 #include <cassert>
 
+// LIP 添加
+#define LIP_RESERVE_SIZE 4
+
 // clang-format off
 
 //########### place macros to be removed in next cycle below this line ###############
