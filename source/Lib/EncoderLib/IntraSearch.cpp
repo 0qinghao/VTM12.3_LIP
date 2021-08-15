@@ -870,8 +870,11 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     }
     else
     {
+        if (cu.lwidth() < 64)
+        {
       tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
                                                   mtsLastCheckId, moreProbMTSIdxFirst);
+        }
       tmpValidReturn = false;
       validReturn |= tmpValidReturn;
     }
@@ -3548,7 +3551,7 @@ void IntraSearch::xEncSubdivCbfQT(CodingStructure &cs, Partitioner &partitioner,
 
   if (partitioner.canSplit(TU_MAX_TR_SPLIT, cs))
   {
-    CHECK(!subdiv, "TU split implied");
+    // CHECK(!subdiv, "TU split implied");
   }
   else
   {
@@ -4430,9 +4433,9 @@ bool IntraSearch::xRecurIntraCodingLumaQTLIP(CodingStructure &cs, Partitioner &p
   const SPS &       sps         = *cs.sps;
   bool              bCheckFull  = true;
   bool              bCheckSplit = false;
-  bCheckFull                    = !partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
-  bCheckSplit                   = partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
-  const Slice &slice            = *cs.slice;
+  //   bCheckFull                    = !partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
+  //   bCheckSplit                   = partitioner.canSplit(TU_MAX_TR_SPLIT, cs);
+  const Slice &slice = *cs.slice;
 
   CHECK(cu.ispMode != NOT_INTRA_SUBPARTITIONS, "Use the function xIntraCodingLumaISP for ISP cases.");
 
@@ -4482,7 +4485,7 @@ bool IntraSearch::xRecurIntraCodingLumaQTLIP(CodingStructure &cs, Partitioner &p
     //   if (m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless())
     //   {
     nNumTransformCands = 1;
-    CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
+    // CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
     // if (cu.bdpcmMode)   // x ?
     // {
     //   trModes.push_back(TrMode(0, true));
@@ -4697,7 +4700,7 @@ bool IntraSearch::xRecurIntraCodingLumaQT(CodingStructure &cs, Partitioner &part
       if (m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless())
       {
         nNumTransformCands = 1;
-        CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
+        // CHECK(!tsAllowed && !cu.bdpcmMode, "transform skip should be enabled for LS");
         if (cu.bdpcmMode)   // x ?
         {
           trModes.push_back(TrMode(0, true));
@@ -6038,7 +6041,7 @@ ChromaCbfs IntraSearch::xRecurIntraChromaCodingQT(CodingStructure &cs, Partition
       if (m_pcEncCfg->getCostMode() == COST_LOSSLESS_CODING && slice.isLossless())
       {
         nNumTransformCands = 1;
-        CHECK(!tsAllowed && !currTU.cu->bdpcmModeChroma, "transform skip should be enabled for LS");
+        // CHECK(!tsAllowed && !currTU.cu->bdpcmModeChroma, "transform skip should be enabled for LS");
         if (currTU.cu->bdpcmModeChroma)
         {
           trModes.push_back(TrMode(0, true));

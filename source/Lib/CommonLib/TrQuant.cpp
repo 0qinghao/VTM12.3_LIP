@@ -519,7 +519,7 @@ void TrQuant::invTransformNxN( TransformUnit &tu, const ComponentID &compID, Pel
   const uint32_t uiWidth      = area.width;
   const uint32_t uiHeight     = area.height;
 
-  CHECK( uiWidth > tu.cs->sps->getMaxTbSize() || uiHeight > tu.cs->sps->getMaxTbSize(), "Maximal allowed transformation size exceeded!" );
+//   CHECK( uiWidth > tu.cs->sps->getMaxTbSize() || uiHeight > tu.cs->sps->getMaxTbSize(), "Maximal allowed transformation size exceeded!" );
   CoeffBuf tempCoeff = CoeffBuf(m_tempCoeff, area);
   xDeQuant(tu, tempCoeff, compID, cQP);
 
@@ -991,7 +991,7 @@ void TrQuant::transformNxN( TransformUnit& tu, const ComponentID& compID, const 
   uiAbsSum = 0;
 
   // transform and quantize
-  CHECK(cs.sps->getMaxTbSize() < uiWidth, "Unsupported transformation size");
+//   CHECK(cs.sps->getMaxTbSize() < uiWidth, "Unsupported transformation size");
 
   CoeffBuf tempCoeff(loadTr ? m_mtsCoeffs[tu.mtsIdx[compID]] : m_tempCoeff, rect);
 

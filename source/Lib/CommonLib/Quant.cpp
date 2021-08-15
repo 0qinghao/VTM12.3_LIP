@@ -388,7 +388,7 @@ void Quant::dequant(const TransformUnit &tu,
   }
   const TCoeff          *const piQCoef = coef;
   CHECK(scalingListType >= SCALING_LIST_NUM, "Invalid scaling list");
-  CHECK(uiWidth > m_uiMaxTrSize, "Unsupported transformation size");
+//   CHECK(uiWidth > m_uiMaxTrSize, "Unsupported transformation size");
 
   // Represents scaling through forward transform
   const bool bClipTransformShiftTo0 = tu.mtsIdx[compID] != MTS_SKIP && sps->getSpsRangeExtension().getExtendedPrecisionProcessingFlag();
