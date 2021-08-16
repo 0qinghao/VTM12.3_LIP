@@ -495,6 +495,9 @@ protected:
   void xIntraCodingTUBlock(TransformUnit &tu, const ComponentID &compID, Distortion &ruiDist,
                            const int &default0Save1Load2 = 0, uint32_t *numSig = nullptr,
                            std::vector<TrMode> *trModes = nullptr, const bool loadTr = false);
+  void xIntraCodingTUBlockLIP(TransformUnit &tu, const ComponentID &compID, Distortion &ruiDist,
+                              const int &default0Save1Load2 = 0, uint32_t *numSig = nullptr,
+                              std::vector<TrMode> *trModes = nullptr, const bool loadTr = false);
   void xIntraCodingACTTUBlock(TransformUnit &tu, const ComponentID &compID, Distortion &ruiDist,
                               std::vector<TrMode> *trModes = nullptr, const bool loadTr = false);
 
