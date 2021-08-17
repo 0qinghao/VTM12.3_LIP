@@ -1163,6 +1163,8 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   int BestMode   = 0;
   int xMode      = 0;
 
+  // TODO: 如果有 reserve 操作记得确认一下
+  pu.num_loop = num_loop;
   for (xMode = 0; xMode < NUM_LUMA_MODE; xMode++)   // for (xMode = 0; xMode < NUM_LUMA_MODE; xMode++)
   {
     switch (xMode)

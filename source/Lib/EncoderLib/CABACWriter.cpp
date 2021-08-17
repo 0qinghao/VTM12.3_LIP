@@ -1241,60 +1241,73 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
   unsigned ipred_mode = pu.intraDir[0];
   unsigned mpm_idx    = numMPMs;
 
-  for (int idx = 0; idx < numMPMs; idx++)
-  {
-    if (ipred_mode == mpm_pred[idx])
-    {
-      mpm_idx = idx;
-      break;
-    }
-  }
-  if (pu.multiRefIdx)
-  {
-    CHECK(mpm_idx >= numMPMs, "use of non-MPM");
-  }
-  else
-  {
-    m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
-  }
+  LIP_flag(pu.LIPPUFlag);
 
-  // mpm_idx / rem_intra_luma_pred_mode
-  if (mpm_idx < numMPMs)
+  if (pu.LIPPUFlag == false)
   {
-    unsigned ctx = (pu.cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
-    if (pu.multiRefIdx == 0)
+    for (int idx = 0; idx < numMPMs; idx++)
     {
-      m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
-    }
-    if (mpm_idx)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 1);
-    }
-    if (mpm_idx > 1)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 2);
-    }
-    if (mpm_idx > 2)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 3);
-    }
-    if (mpm_idx > 3)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 4);
-    }
-  }
-  else
-  {
-    std::sort(mpm_pred, mpm_pred + numMPMs);
-    for (int idx = numMPMs - 1; idx >= 0; idx--)
-    {
-      if (ipred_mode > mpm_pred[idx])
+      if (ipred_mode == mpm_pred[idx])
       {
-        ipred_mode--;
+        mpm_idx = idx;
+        break;
       }
     }
-    xWriteTruncBinCode(ipred_mode,
-                       NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
+    if (pu.multiRefIdx)
+    {
+      CHECK(mpm_idx >= numMPMs, "use of non-MPM");
+    }
+    else
+    {
+      m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
+    }
+
+    // mpm_idx / rem_intra_luma_pred_mode
+    if (mpm_idx < numMPMs)
+    {
+      unsigned ctx = (pu.cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
+      if (pu.multiRefIdx == 0)
+      {
+        m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
+      }
+      if (mpm_idx)
+      {
+        m_BinEncoder.encodeBinEP(mpm_idx > 1);
+      }
+      if (mpm_idx > 1)
+      {
+        m_BinEncoder.encodeBinEP(mpm_idx > 2);
+      }
+      if (mpm_idx > 2)
+      {
+        m_BinEncoder.encodeBinEP(mpm_idx > 3);
+      }
+      if (mpm_idx > 3)
+      {
+        m_BinEncoder.encodeBinEP(mpm_idx > 4);
+      }
+    }
+    else
+    {
+      std::sort(mpm_pred, mpm_pred + numMPMs);
+      for (int idx = numMPMs - 1; idx >= 0; idx--)
+      {
+        if (ipred_mode > mpm_pred[idx])
+        {
+          ipred_mode--;
+        }
+      }
+      xWriteTruncBinCode(ipred_mode,
+                         NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
+    }
+  }
+  else
+  {
+    int num_loop = pu.num_loop;
+    for (int i = 0; i<num_loop; i++)
+    {
+      m_BinEncoder.encodeBinsEP(pu.intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);
+    }
   }
 }
 
@@ -3482,6 +3495,11 @@ void CABACWriter::code_unary_fixed(unsigned symbol, unsigned ctxId, unsigned una
   }
 }
 
+void CABACWriter::LIP_flag(bool LIPPUFlag)
+{
+  // unsigned ctxId = DeriveCtx::CtxMipFlag(cu);
+  m_BinEncoder.encodeBinEP(LIPPUFlag);
+}
 void CABACWriter::mip_flag(const CodingUnit &cu)
 {
   if (!cu.Y().valid())

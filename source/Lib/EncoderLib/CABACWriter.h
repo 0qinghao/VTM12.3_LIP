@@ -116,6 +116,7 @@ public:
   void sbt_mode(const CodingUnit &cu);
   void end_of_ctu(const CodingUnit &cu, CUCtx &cuCtx);
   void mip_flag(const CodingUnit &cu);
+  void LIP_flag(bool LIPPUFlag);
   void mip_pred_modes(const CodingUnit &cu);
   void mip_pred_mode(const PredictionUnit &pu);
   void cu_palette_info(const CodingUnit &cu, ComponentID compBegin, uint32_t numComp, CUCtx &cuCtx);

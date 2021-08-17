@@ -424,6 +424,7 @@ struct IntraPredictionData
   bool     mipTransposedFlag;
   int      multiRefIdx;
   bool     LIPPUFlag;
+  int      num_loop;
 };
 
 struct InterPredictionData
