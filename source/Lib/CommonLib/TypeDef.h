@@ -52,7 +52,33 @@
 
 // LIP 添加
 #define LIP_RESERVE_SIZE 0
-#define BitsLoopMode 7
+
+#define BitsLoopMode 2
+#define LIP_MODE_LIST                                                                                                  \
+  {                                                                                                                    \
+    0, 1, 18, 50                                                                                                       \
+  }
+
+// #define BitsLoopMode 3
+// #define LIP_MODE_LIST
+//   {
+//     0, 1, 10, 18, 26, 42, 50, 58
+//   }
+
+// #define BitsLoopMode 3
+// #define LIP_MODE_LIST
+//   {
+//     0, 1, 2, 10, 18, 34, 50, 66
+//   }
+
+// enum LIP_MODE_LIST
+// {
+//   M1 = 0,
+//   M2 = 1,
+//   M3 = 18,
+//   M4 = 50,
+//   LIP_MODE_NUM = 4
+// };
 
 // clang-format off
 

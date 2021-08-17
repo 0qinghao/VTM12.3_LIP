@@ -29,6 +29,7 @@
 		"functional": "cpp",
 		"tuple": "cpp",
 		"new": "cpp",
-		"stdexcept": "cpp"
+		"stdexcept": "cpp",
+		"type_traits": "cpp"
 	}
 }

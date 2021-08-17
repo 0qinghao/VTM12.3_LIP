@@ -875,7 +875,6 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
         tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
                                                     mtsLastCheckId, moreProbMTSIdxFirst);
       }
-      // tmpValidReturn = false;
       validReturn |= tmpValidReturn;
     }
 
@@ -913,16 +912,28 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     cs.useSubStructure(*csBest, partitioner.chType, pu.singleChan(CHANNEL_TYPE_LUMA), true, true,
                        KEEP_PRED_AND_RESI_SIGNALS, KEEP_PRED_AND_RESI_SIGNALS, true);
   }
+  if (csBest->pus[0]->LIPPUFlag == true)
+  {
+    // TODO: 缩减模式后检查一下有没有问题
+    ::memcpy(pu.intraDirLIP, csBest->pus[0]->intraDirLIP,
+             sizeof(uint32_t) * MAX_NUM_CHANNEL_TYPE * (MAX_CU_SIZE - LIP_RESERVE_SIZE + 1));
+    pu.intraDir[CHANNEL_TYPE_LUMA] = csBest->pus[0]->intraDir[CHANNEL_TYPE_LUMA];
+    // pu.intraDir[CHANNEL_TYPE_CHROMA] = csBest->pus[0]->intraDir[CHANNEL_TYPE_CHROMA];
+    pu.num_loop = csBest->pus[0]->num_loop;
+  }
   csBest->releaseIntermediateData();
   if (validReturn)
   {
     //=== update PU data ====
-    cu.mipFlag                     = uiBestPUMode.mipFlg;
-    pu.mipTransposedFlag           = uiBestPUMode.mipTrFlg;
-    pu.multiRefIdx                 = uiBestPUMode.mRefId;
-    pu.intraDir[CHANNEL_TYPE_LUMA] = uiBestPUMode.modeId;
-    cu.bdpcmMode                   = bestBDPCMMode;
-    pu.LIPPUFlag                   = uiBestPUMode.LIPFlg;
+    cu.mipFlag           = uiBestPUMode.mipFlg;
+    pu.mipTransposedFlag = uiBestPUMode.mipTrFlg;
+    pu.multiRefIdx       = uiBestPUMode.mRefId;
+    if (uiBestPUMode.LIPFlg == false)
+    {
+      pu.intraDir[CHANNEL_TYPE_LUMA] = uiBestPUMode.modeId;
+    }
+    cu.bdpcmMode = bestBDPCMMode;
+    pu.LIPPUFlag = uiBestPUMode.LIPFlg;
   }
 
   //===== reset context models =====

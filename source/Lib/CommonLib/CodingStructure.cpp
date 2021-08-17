@@ -69,7 +69,7 @@ CodingStructure::CodingStructure(CUCache &cuCache, PUCache &puCache, TUCache &tu
   , tmpColorSpaceCost(MAX_DOUBLE)
   , firstColorSpaceSelected(true)
   , resetIBCBuffer(false)
-  , isLIP(false)
+  // , isLIP(false)
 {
   for (uint32_t i = 0; i < MAX_NUM_COMPONENT; i++)
   {

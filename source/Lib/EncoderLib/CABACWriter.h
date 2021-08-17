@@ -106,7 +106,7 @@ public:
   void extend_ref_line(const CodingUnit &cu);
   void intra_luma_pred_modes(const CodingUnit &cu);
   void intra_luma_pred_mode(const PredictionUnit &pu);
-  void intra_luma_pred_mode_LIP(const PredictionUnit &pu);
+  // void intra_luma_pred_mode_LIP(const PredictionUnit &pu);
   void intra_chroma_pred_modes(const CodingUnit &cu);
   void intra_chroma_lmc_mode(const PredictionUnit &pu);
   void intra_chroma_pred_mode(const PredictionUnit &pu);

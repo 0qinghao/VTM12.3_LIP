@@ -1031,191 +1031,213 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
     return;
   }
 
-  mip_flag(cu);
-  if (cu.mipFlag)
+  const int       numMPMs   = NUM_MOST_PROBABLE_MODES;
+  const int       numBlocks = CU::getNumPUs(cu);
+  unsigned        mpm_preds[4][numMPMs];
+  unsigned        mpm_idxs[4];
+  unsigned        ipred_modes[4];
+  PredictionUnit *pu = cu.firstPU;
+
+  LIP_flag(pu->LIPPUFlag);
+
+  if (pu->LIPPUFlag == false)
   {
-    mip_pred_modes(cu);
-    return;
-  }
-  extend_ref_line(cu);
-
-  isp_mode(cu);
-
-  const int numMPMs   = NUM_MOST_PROBABLE_MODES;
-  const int numBlocks = CU::getNumPUs(cu);
-  unsigned  mpm_preds[4][numMPMs];
-  unsigned  mpm_idxs[4];
-  unsigned  ipred_modes[4];
-
-  const PredictionUnit *pu = cu.firstPU;
-
-  // prev_intra_luma_pred_flag
-  for (int k = 0; k < numBlocks; k++)
-  {
-    unsigned *mpm_pred   = mpm_preds[k];
-    unsigned &mpm_idx    = mpm_idxs[k];
-    unsigned &ipred_mode = ipred_modes[k];
-
-    PU::getIntraMPMs(*pu, mpm_pred);
-
-    ipred_mode = pu->intraDir[0];
-    mpm_idx    = numMPMs;
-    for (unsigned idx = 0; idx < numMPMs; idx++)
+    mip_flag(cu);
+    if (cu.mipFlag)
     {
-      if (ipred_mode == mpm_pred[idx])
-      {
-        mpm_idx = idx;
-        break;
-      }
+      mip_pred_modes(cu);
+      return;
     }
-    if (pu->multiRefIdx)
-    {
-      CHECK(mpm_idx >= numMPMs, "use of non-MPM");
-    }
-    else
-    {
-      m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
-    }
+    extend_ref_line(cu);
 
-    pu = pu->next;
-  }
-
-  pu = cu.firstPU;
-
-  // mpm_idx / rem_intra_luma_pred_mode
-  for (int k = 0; k < numBlocks; k++)
-  {
-    const unsigned &mpm_idx = mpm_idxs[k];
-    if (mpm_idx < numMPMs)
-    {
-      unsigned ctx = (pu->cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
-      if (pu->multiRefIdx == 0)
-      {
-        m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
-      }
-      if (mpm_idx)
-      {
-        m_BinEncoder.encodeBinEP(mpm_idx > 1);
-      }
-      if (mpm_idx > 1)
-      {
-        m_BinEncoder.encodeBinEP(mpm_idx > 2);
-      }
-      if (mpm_idx > 2)
-      {
-        m_BinEncoder.encodeBinEP(mpm_idx > 3);
-      }
-      if (mpm_idx > 3)
-      {
-        m_BinEncoder.encodeBinEP(mpm_idx > 4);
-      }
-    }
-    else
+    isp_mode(cu);
+    // intra LL 一定是 1 个
+    // prev_intra_luma_pred_flag
+    for (int k = 0; k < numBlocks; k++)
     {
       unsigned *mpm_pred   = mpm_preds[k];
-      unsigned  ipred_mode = ipred_modes[k];
+      unsigned &mpm_idx    = mpm_idxs[k];
+      unsigned &ipred_mode = ipred_modes[k];
 
-      // sorting of MPMs
-      std::sort(mpm_pred, mpm_pred + numMPMs);
+      PU::getIntraMPMs(*pu, mpm_pred);
 
-      for (int idx = numMPMs - 1; idx >= 0; idx--)
+      ipred_mode = pu->intraDir[0];
+      mpm_idx    = numMPMs;
+      for (unsigned idx = 0; idx < numMPMs; idx++)
       {
-        if (ipred_mode > mpm_pred[idx])
+        if (ipred_mode == mpm_pred[idx])
         {
-          ipred_mode--;
+          mpm_idx = idx;
+          break;
         }
       }
-      CHECK(ipred_mode >= 64, "Incorrect mode");
-      xWriteTruncBinCode(ipred_mode,
-                         NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
-    }
-
-    DTRACE(g_trace_ctx, D_SYNTAX, "intra_luma_pred_modes() idx=%d pos=(%d,%d) mode=%d\n", k, pu->lumaPos().x,
-           pu->lumaPos().y, pu->intraDir[0]);
-    pu = pu->next;
-  }
-}
-
-void CABACWriter::intra_luma_pred_mode_LIP(const PredictionUnit &pu)
-{
-  if (pu.cu->bdpcmMode)
-  {
-    return;
-  }
-  mip_flag(*pu.cu);
-  if (pu.cu->mipFlag)
-  {
-    mip_pred_mode(pu);
-    return;
-  }
-  extend_ref_line(pu);
-  isp_mode(*pu.cu);
-
-  // prev_intra_luma_pred_flag
-  const int numMPMs = NUM_MOST_PROBABLE_MODES;
-  unsigned  mpm_pred[numMPMs];
-
-  PU::getIntraMPMs(pu, mpm_pred);
-
-  unsigned ipred_mode = pu.intraDir[0];
-  unsigned mpm_idx    = numMPMs;
-
-  for (int idx = 0; idx < numMPMs; idx++)
-  {
-    if (ipred_mode == mpm_pred[idx])
-    {
-      mpm_idx = idx;
-      break;
-    }
-  }
-  if (pu.multiRefIdx)
-  {
-    CHECK(mpm_idx >= numMPMs, "use of non-MPM");
-  }
-  else
-  {
-    m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
-  }
-
-  // mpm_idx / rem_intra_luma_pred_mode
-  if (mpm_idx < numMPMs)
-  {
-    unsigned ctx = (pu.cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
-    if (pu.multiRefIdx == 0)
-    {
-      m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
-    }
-    if (mpm_idx)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 1);
-    }
-    if (mpm_idx > 1)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 2);
-    }
-    if (mpm_idx > 2)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 3);
-    }
-    if (mpm_idx > 3)
-    {
-      m_BinEncoder.encodeBinEP(mpm_idx > 4);
-    }
-  }
-  else
-  {
-    std::sort(mpm_pred, mpm_pred + numMPMs);
-    for (int idx = numMPMs - 1; idx >= 0; idx--)
-    {
-      if (ipred_mode > mpm_pred[idx])
+      if (pu->multiRefIdx)
       {
-        ipred_mode--;
+        CHECK(mpm_idx >= numMPMs, "use of non-MPM");
       }
+      else
+      {
+        m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
+      }
+
+      pu = pu->next;
     }
-    xWriteTruncBinCode(ipred_mode,
-                       NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
+
+    pu = cu.firstPU;
+
+    // mpm_idx / rem_intra_luma_pred_mode
+    for (int k = 0; k < numBlocks; k++)
+    {
+      const unsigned &mpm_idx = mpm_idxs[k];
+      if (mpm_idx < numMPMs)
+      {
+        unsigned ctx = (pu->cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
+        if (pu->multiRefIdx == 0)
+        {
+          m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
+        }
+        if (mpm_idx)
+        {
+          m_BinEncoder.encodeBinEP(mpm_idx > 1);
+        }
+        if (mpm_idx > 1)
+        {
+          m_BinEncoder.encodeBinEP(mpm_idx > 2);
+        }
+        if (mpm_idx > 2)
+        {
+          m_BinEncoder.encodeBinEP(mpm_idx > 3);
+        }
+        if (mpm_idx > 3)
+        {
+          m_BinEncoder.encodeBinEP(mpm_idx > 4);
+        }
+      }
+      else
+      {
+        unsigned *mpm_pred   = mpm_preds[k];
+        unsigned  ipred_mode = ipred_modes[k];
+
+        // sorting of MPMs
+        std::sort(mpm_pred, mpm_pred + numMPMs);
+
+        for (int idx = numMPMs - 1; idx >= 0; idx--)
+        {
+          if (ipred_mode > mpm_pred[idx])
+          {
+            ipred_mode--;
+          }
+        }
+        CHECK(ipred_mode >= 64, "Incorrect mode");
+        xWriteTruncBinCode(ipred_mode,
+                           NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
+      }
+
+      DTRACE(g_trace_ctx, D_SYNTAX, "intra_luma_pred_modes() idx=%d pos=(%d,%d) mode=%d\n", k, pu->lumaPos().x,
+             pu->lumaPos().y, pu->intraDir[0]);
+      pu = pu->next;
+    }
+  }
+  else   // 编码 LIP mode
+  {
+    ComponentID compID = COMPONENT_Y;
+    // ll intra 肯定只有一个 PU
+    for (int k = 0; k < numBlocks; k++)
+    {
+      // int num_loop = pu->num_loop;
+      int       iWidth   = cu.block(compID).width;
+      int       iHeight  = cu.block(compID).height;
+      const int num_loop = (iWidth >= iHeight) ? iHeight : iWidth;
+      pu->num_loop       = num_loop;
+      for (int i = 0; i < num_loop; i++)
+      {
+        m_BinEncoder.encodeBinsEP(pu->intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);
+      }
+      pu = pu->next;
+    }
   }
 }
+
+// void CABACWriter::intra_luma_pred_mode_LIP(const PredictionUnit &pu)
+// {
+//   if (pu.cu->bdpcmMode)
+//   {
+//     return;
+//   }
+//   mip_flag(*pu.cu);
+//   if (pu.cu->mipFlag)
+//   {
+//     mip_pred_mode(pu);
+//     return;
+//   }
+//   extend_ref_line(pu);
+//   isp_mode(*pu.cu);
+
+//   // prev_intra_luma_pred_flag
+//   const int numMPMs = NUM_MOST_PROBABLE_MODES;
+//   unsigned  mpm_pred[numMPMs];
+
+//   PU::getIntraMPMs(pu, mpm_pred);
+
+//   unsigned ipred_mode = pu.intraDir[0];
+//   unsigned mpm_idx    = numMPMs;
+
+//   for (int idx = 0; idx < numMPMs; idx++)
+//   {
+//     if (ipred_mode == mpm_pred[idx])
+//     {
+//       mpm_idx = idx;
+//       break;
+//     }
+//   }
+//   if (pu.multiRefIdx)
+//   {
+//     CHECK(mpm_idx >= numMPMs, "use of non-MPM");
+//   }
+//   else
+//   {
+//     m_BinEncoder.encodeBin(mpm_idx < numMPMs, Ctx::IntraLumaMpmFlag());
+//   }
+
+//   // mpm_idx / rem_intra_luma_pred_mode
+//   if (mpm_idx < numMPMs)
+//   {
+//     unsigned ctx = (pu.cu->ispMode == NOT_INTRA_SUBPARTITIONS ? 1 : 0);
+//     if (pu.multiRefIdx == 0)
+//     {
+//       m_BinEncoder.encodeBin(mpm_idx > 0, Ctx::IntraLumaPlanarFlag(ctx));
+//     }
+//     if (mpm_idx)
+//     {
+//       m_BinEncoder.encodeBinEP(mpm_idx > 1);
+//     }
+//     if (mpm_idx > 1)
+//     {
+//       m_BinEncoder.encodeBinEP(mpm_idx > 2);
+//     }
+//     if (mpm_idx > 2)
+//     {
+//       m_BinEncoder.encodeBinEP(mpm_idx > 3);
+//     }
+//     if (mpm_idx > 3)
+//     {
+//       m_BinEncoder.encodeBinEP(mpm_idx > 4);
+//     }
+//   }
+//   else
+//   {
+//     std::sort(mpm_pred, mpm_pred + numMPMs);
+//     for (int idx = numMPMs - 1; idx >= 0; idx--)
+//     {
+//       if (ipred_mode > mpm_pred[idx])
+//       {
+//         ipred_mode--;
+//       }
+//     }
+//     xWriteTruncBinCode(ipred_mode,
+//                        NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
+//   }
+// }
 
 void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
 {
@@ -1223,14 +1245,6 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
   {
     return;
   }
-  mip_flag(*pu.cu);
-  if (pu.cu->mipFlag)
-  {
-    mip_pred_mode(pu);
-    return;
-  }
-  extend_ref_line(pu);
-  isp_mode(*pu.cu);
 
   // prev_intra_luma_pred_flag
   const int numMPMs = NUM_MOST_PROBABLE_MODES;
@@ -1245,6 +1259,15 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
 
   if (pu.LIPPUFlag == false)
   {
+    mip_flag(*pu.cu);
+    if (pu.cu->mipFlag)
+    {
+      mip_pred_mode(pu);
+      return;
+    }
+    extend_ref_line(pu);
+    isp_mode(*pu.cu);
+
     for (int idx = 0; idx < numMPMs; idx++)
     {
       if (ipred_mode == mpm_pred[idx])
@@ -1304,7 +1327,7 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
   else
   {
     int num_loop = pu.num_loop;
-    for (int i = 0; i<num_loop; i++)
+    for (int i = 0; i < num_loop; i++)
     {
       m_BinEncoder.encodeBinsEP(pu.intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);
     }

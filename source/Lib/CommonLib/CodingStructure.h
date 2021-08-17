@@ -362,8 +362,8 @@ private:
   inline PelUnitBuf        getBuf(const UnitArea &unit, const PictureType &type);
   inline const CPelUnitBuf getBuf(const UnitArea &unit, const PictureType &type) const;
 
-public:
-  bool isLIP;
+// public:
+//   bool isLIP;
 };
 
 static inline uint32_t getNumberValidTBlocks(const PreCalcValues &pcv)
