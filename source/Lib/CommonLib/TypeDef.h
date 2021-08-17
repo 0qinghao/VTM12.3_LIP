@@ -51,7 +51,7 @@
 #include <cassert>
 
 // LIP 添加
-#define LIP_RESERVE_SIZE 4
+#define LIP_RESERVE_SIZE 0
 
 // clang-format off
 

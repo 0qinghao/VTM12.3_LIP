@@ -1292,7 +1292,14 @@ void IntraPrediction::predIntraChromaLM(const ComponentID compID, PelBuf &piPred
   piPred.linearTransform(a, iShift, b, true, pu.cs->slice->clpRng(compID));
 }
 
-// LIP 的预测
+// LIP 添加
+int IntraPrediction::LIPgetLoopCost(Pel src, Pel pred)
+{
+  int cost;
+  cost = abs(src - pred);
+
+  return cost;
+}
 
 int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
 {
@@ -1321,7 +1328,8 @@ int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
   {
     pred[0] = left + top - lefttop;
   }
-  bitnum += abs(pSrc.at(pstride, 0) - pred[0]);
+  // bitnum += abs(pSrc.at(pstride, 0) - pred[0]);
+  bitnum += LIPgetLoopCost(pSrc.at(pstride, 0), pred[0]);
 
   CHECK(width > MAX_CU_SIZE, "width greater than limit");
   for (int l = 1; l < width; l++)
@@ -1343,7 +1351,8 @@ int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
     {
       pred[l] = left + top - lefttop;
     }
-    bitnum += abs(pSrc.at(l + pstride, 0) - pred[l]);
+    // bitnum += abs(pSrc.at(l + pstride, 0) - pred[l]);
+    bitnum += LIPgetLoopCost(pSrc.at(l + pstride, 0), pred[l]);
   }
 
   CHECK(height > MAX_CU_SIZE, "height greater than limit");
@@ -1367,7 +1376,8 @@ int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
     {
       pred[0] = left + top - lefttop;
     }
-    bitnum += abs(pSrc.at(pstride, k) - pred[0]);
+    // bitnum += abs(pSrc.at(pstride, k) - pred[0]);
+    bitnum += LIPgetLoopCost(pSrc.at(pstride, k), pred[0]);
   }
 
   return bitnum;
@@ -1405,7 +1415,8 @@ int IntraPrediction::xPredIntraPlanar_loop(const CPelBuf &pSrc, PelBuf &pDst, in
     {
       pred[l] = left + top - lefttop;
     }
-    bitnum += abs(pSrc.at(l + loop + pstride, loop) - pred[l]);
+    // bitnum += abs(pSrc.at(l + loop + pstride, loop) - pred[l]);
+    bitnum += LIPgetLoopCost(pSrc.at(l + loop + pstride, loop), pred[l]);
   }
 
   CHECK(height > MAX_CU_SIZE, "height greater than limit");
@@ -1429,7 +1440,8 @@ int IntraPrediction::xPredIntraPlanar_loop(const CPelBuf &pSrc, PelBuf &pDst, in
     {
       pred[0] = left + top - lefttop;
     }
-    bitnum += abs(pSrc.at(loop + pstride, k + loop) - pred[0]);
+    // bitnum += abs(pSrc.at(loop + pstride, k + loop) - pred[0]);
+    bitnum += LIPgetLoopCost(pSrc.at(loop + pstride, k + loop), pred[0]);
   }
 
   return bitnum;
@@ -1468,14 +1480,16 @@ int IntraPrediction::xPredIntraDc_loop1(const CPelBuf &pSrc, PelBuf &pDst)
   for (int l = 0; l < width; l++)
   {
     pred[l] = dcVal;
-    bitnum += abs(pSrc.at(l + pstride, 0) - pred[l]);
+    // bitnum += abs(pSrc.at(l + pstride, 0) - pred[l]);
+    bitnum += LIPgetLoopCost(pSrc.at(l + pstride, 0), pred[l]);
   }
 
   for (int k = 1; k < height; k++)
   {
     pred += stride;
     pred[0] = dcVal;
-    bitnum += abs(pSrc.at(pstride, k) - pred[0]);
+    // bitnum += abs(pSrc.at(pstride, k) - pred[0]);
+    bitnum += LIPgetLoopCost(pSrc.at(pstride, k), pred[0]);
   }
 
   return bitnum;
@@ -1517,14 +1531,16 @@ int IntraPrediction::xPredIntraDc_loop(const CPelBuf &pSrc, PelBuf &pDst, int lo
   {
     pred[l] = dcVal;
     // TODO: 确定LIP选模式的判据  只注明这一处
-    bitnum += abs(pSrc.at(l + loop + pstride, loop) - pred[l]);
+    // bitnum += abs(pSrc.at(l + loop + pstride, loop) - pred[l]);
+    bitnum += LIPgetLoopCost(pSrc.at(l + loop + pstride, loop), pred[l]);
   }
 
   for (int k = 1; k < height; k++)
   {
     pred += stride;
     pred[0] = dcVal;
-    bitnum += abs(pSrc.at(loop + pstride, k + loop) - pred[0]);
+    // bitnum += abs(pSrc.at(loop + pstride, k + loop) - pred[0]);
+    bitnum += LIPgetLoopCost(pSrc.at(loop + pstride, k + loop), pred[0]);
   }
 
   return bitnum;
@@ -1836,25 +1852,29 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
     for (int x = 0; x < width; x++)
     {
       pDst.at(0, x) = pDstBuf[x];
-      bitnum += abs(pSrc.at(pstride, x) - pDstBuf[x]);
+      // bitnum += abs(pSrc.at(pstride, x) - pDstBuf[x]);
+      bitnum += LIPgetLoopCost(pSrc.at(pstride, x), pDstBuf[x]);
     }
     for (int y = 1; y < height; y++)
     {
       pDstBuf += dstStride;
       pDst.at(y, 0) = pDstBuf[0];
-      bitnum += abs(pSrc.at(y + pstride, 0) - pDstBuf[0]);
+      // bitnum += abs(pSrc.at(y + pstride, 0) - pDstBuf[0]);
+      bitnum += LIPgetLoopCost(pSrc.at(y + pstride, 0), pDstBuf[0]);
     }
   }
   else
   {
     for (int x = 0; x < width; x++)
     {
-      bitnum += abs(pSrc.at(x + pstride, 0) - pDstBuf[x]);
+      // bitnum += abs(pSrc.at(x + pstride, 0) - pDstBuf[x]);
+      bitnum += LIPgetLoopCost(pSrc.at(x + pstride, 0), pDstBuf[x]);
     }
     for (int y = 1; y < height; y++)
     {
       pDstBuf += dstStride;
-      bitnum += abs(pSrc.at(pstride, y) - pDstBuf[0]);
+      // bitnum += abs(pSrc.at(pstride, y) - pDstBuf[0]);
+      bitnum += LIPgetLoopCost(pSrc.at(pstride, y), pDstBuf[0]);
     }
   }
 

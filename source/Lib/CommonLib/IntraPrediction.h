@@ -120,6 +120,7 @@ protected:
   void xPredIntraDc(const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType,
                     const bool enableBoundaryFilter = true);
   void xPredIntraAng(const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const ClpRng &clpRng);
+  int  LIPgetLoopCost(const Pel src, const Pel pred);
   int  xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst);
   int  xPredIntraPlanar_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop);
   int  xPredIntraDc_loop1(const CPelBuf &pSrc, PelBuf &pDst);
