@@ -3076,6 +3076,35 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
       cuCtx.violatesMtsCoeffConstraint = true;
     }
   }
+
+  int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
+  if (CoeffProcessFlag)
+  {
+    int  k, l;
+    uint uiWidth  = tu.blocks[compID].width;
+    uint uiHeight = tu.blocks[compID].height;
+    for (k = 1; k < uiHeight; k++)
+    {
+      for (l = 1; l < uiWidth; l++)
+      {
+        TCoeff left    = coeff[k * uiWidth - 1 + l];
+        TCoeff top     = coeff[(k - 1) * uiWidth + l];
+        TCoeff lefttop = coeff[(k - 1) * uiWidth - 1 + l];
+        if (lefttop >= (left > top ? left : top))
+        {
+          coeff[k * uiWidth + l] = (left < top ? left : top) - coeff[k * uiWidth + l];
+        }
+        else if (lefttop <= (left < top ? left : top))
+        {
+          coeff[k * uiWidth + l] = (left > top ? left : top) - coeff[k * uiWidth + l];
+        }
+        else
+        {
+          coeff[k * uiWidth + l] = left + top - lefttop - coeff[k * uiWidth + l];
+        }
+      }
+    }
+  }
 }
 
 void CABACReader::ts_flag(TransformUnit &tu, ComponentID compID)
