@@ -2930,11 +2930,13 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
 
   if (amp_LT - amp_hevc < 0)
   {
-    m_BinEncoder.encodeBinEP(1);
+    // m_BinEncoder.encodeBinEP(1);
+    m_BinEncoder.encodeBin(1, cctx.CoeffProcessCtxId());
   }
   else
   {
-    m_BinEncoder.encodeBinEP(0);
+    // m_BinEncoder.encodeBinEP(0);
+    m_BinEncoder.encodeBin(0, cctx.CoeffProcessCtxId());
   }
 }
 
@@ -3592,7 +3594,11 @@ void CABACWriter::code_unary_fixed(unsigned symbol, unsigned ctxId, unsigned una
 void CABACWriter::LIP_flag(bool LIPPUFlag)
 {
   // unsigned ctxId = DeriveCtx::CtxMipFlag(cu);
-  m_BinEncoder.encodeBinEP(LIPPUFlag);
+
+  // m_BinEncoder.encodeBinEP(LIPPUFlag);
+
+  unsigned ctxId = DeriveCtx::CtxLIPFlag();
+  m_BinEncoder.encodeBin(LIPPUFlag, Ctx::MipFlag(ctxId));
 }
 void CABACWriter::mip_flag(const CodingUnit &cu)
 {

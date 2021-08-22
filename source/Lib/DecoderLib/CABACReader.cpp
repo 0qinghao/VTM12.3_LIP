@@ -1385,8 +1385,11 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
     return;
   }
 
-  cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
-  int      numBlocks    = CU::getNumPUs(cu);
+  // cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
+  unsigned ctxId        = DeriveCtx::CtxLIPFlag();
+  cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBin(Ctx::LIPFlag(ctxId));
+
+  int      numBlocks = CU::getNumPUs(cu);
   unsigned mpm_pred[NUM_MOST_PROBABLE_MODES];   // mpm_idx / rem_intra_luma_pred_mode
 
   if (cu.firstPU->LIPPUFlag == false)
@@ -3077,7 +3080,8 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
     }
   }
 
-  int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
+  // int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
+  int CoeffProcessFlag = m_BinDecoder.decodeBin(cctx.CoeffProcessCtxId());
   if (CoeffProcessFlag)
   {
     int  k, l;

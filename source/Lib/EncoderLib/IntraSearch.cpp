@@ -551,6 +551,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
 
   const TempCtx ctxStart(m_CtxCache, m_CABACEstimator->getCtx());
   const TempCtx ctxStartMipFlag(m_CtxCache, SubCtx(Ctx::MipFlag, m_CABACEstimator->getCtx()));
+  const TempCtx ctxStartLIPFlag(m_CtxCache, SubCtx(Ctx::LIPFlag, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartIspMode(m_CtxCache, SubCtx(Ctx::ISPMode, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartPlanarFlag(m_CtxCache, SubCtx(Ctx::IntraLumaPlanarFlag, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartIntraMode(m_CtxCache, SubCtx(Ctx::IntraLumaMpmFlag, m_CABACEstimator->getCtx()));
@@ -663,6 +664,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
 
         // NB xFracModeBitsIntra will not affect the mode for chroma that may have already been pre-estimated.
         m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+        m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
         m_CABACEstimator->getCtx() = SubCtx(Ctx::ISPMode, ctxStartIspMode);
         m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaPlanarFlag, ctxStartPlanarFlag);
         m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaMpmFlag, ctxStartIntraMode);
@@ -712,6 +714,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
 
             // NB xFracModeBitsIntra will not affect the mode for chroma that may have already been pre-estimated.
             m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+            m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::ISPMode, ctxStartIspMode);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaPlanarFlag, ctxStartPlanarFlag);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaMpmFlag, ctxStartIntraMode);
@@ -755,6 +758,7 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
           Distortion minSadHad = std::min(distParamSad.distFunc(distParamSad) * 2, distParamHad.distFunc(distParamHad));
 
           m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+          m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
 
           uint64_t fracModeBits = xFracModeBitsIntra(pu, uiMode, CHANNEL_TYPE_LUMA);
 
@@ -958,6 +962,7 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, c
 
   const TempCtx ctxStart(m_CtxCache, m_CABACEstimator->getCtx());
   const TempCtx ctxStartMipFlag(m_CtxCache, SubCtx(Ctx::MipFlag, m_CABACEstimator->getCtx()));
+  const TempCtx ctxStartLIPFlag(m_CtxCache, SubCtx(Ctx::LIPFlag, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartIspMode(m_CtxCache, SubCtx(Ctx::ISPMode, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartPlanarFlag(m_CtxCache, SubCtx(Ctx::IntraLumaPlanarFlag, m_CABACEstimator->getCtx()));
   const TempCtx ctxStartIntraMode(m_CtxCache, SubCtx(Ctx::IntraLumaMpmFlag, m_CABACEstimator->getCtx()));
@@ -1171,6 +1176,7 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, c
 
             // NB xFracModeBitsIntra will not affect the mode for chroma that may have already been pre-estimated.
             m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+            m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::ISPMode, ctxStartIspMode);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaPlanarFlag, ctxStartPlanarFlag);
             m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaMpmFlag, ctxStartIntraMode);
@@ -1349,6 +1355,7 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, c
 
                 // NB xFracModeBitsIntra will not affect the mode for chroma that may have already been pre-estimated.
                 m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+                m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
                 m_CABACEstimator->getCtx() = SubCtx(Ctx::ISPMode, ctxStartIspMode);
                 m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaPlanarFlag, ctxStartPlanarFlag);
                 m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaMpmFlag, ctxStartIntraMode);
@@ -1454,6 +1461,7 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, c
                 std::min(distParamSad.distFunc(distParamSad) * 2, distParamHad.distFunc(distParamHad));
 
               m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+              m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
 
               uint64_t fracModeBits = xFracModeBitsIntra(pu, uiMode, CHANNEL_TYPE_LUMA);
 
@@ -1689,6 +1697,7 @@ bool IntraSearch::estIntraPredLumaQT(CodingUnit &cu, Partitioner &partitioner, c
 
           //===== reset context models =====
           m_CABACEstimator->getCtx() = SubCtx(Ctx::MipFlag, ctxStartMipFlag);
+          m_CABACEstimator->getCtx() = SubCtx(Ctx::LIPFlag, ctxStartLIPFlag);
           m_CABACEstimator->getCtx() = SubCtx(Ctx::ISPMode, ctxStartIspMode);
           m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaPlanarFlag, ctxStartPlanarFlag);
           m_CABACEstimator->getCtx() = SubCtx(Ctx::IntraLumaMpmFlag, ctxStartIntraMode);
