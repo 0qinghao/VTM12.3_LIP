@@ -237,7 +237,7 @@ typedef std::pair<int, int>  TrCost;
 #endif
 
 // SIMD optimizations
-#define SIMD_ENABLE 1
+#define SIMD_ENABLE 0
 #define ENABLE_SIMD_OPT SIMD_ENABLE   ///< SIMD optimizations, no impact on RD performance
 #define ENABLE_SIMD_OPT_MCIF                                                                                           \
   (1 && ENABLE_SIMD_OPT)   ///< SIMD optimization for the interpolation filter, no impact on RD performance
