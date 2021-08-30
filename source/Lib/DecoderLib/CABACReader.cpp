@@ -1490,12 +1490,25 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
     {
       int       iWidth   = cu.block(compID).width;
       int       iHeight  = cu.block(compID).height;
-      const int num_loop = (iWidth >= iHeight) ? iHeight : iWidth;
-      pu->num_loop       = num_loop;
+      const int loop_all = (iWidth >= iHeight) ? iHeight : iWidth;
+      int       num_loop = 0;
+      for (int w = iWidth, h = iHeight; w >= 1 && h >= 1; w--, h--)
+      {
+        num_loop++;
+        if (w * h < LIP_RESERVE_CNT)
+          break;
+      }
+      assert(num_loop > 1);
+      pu->num_loop = num_loop;
 
+      uint32_t xMode=0;
       for (int i = 0; i < num_loop; i++)
       {
-        uint32_t xMode                        = m_BinDecoder.decodeBinsEP(BitsLoopMode);
+        xMode                                 = m_BinDecoder.decodeBinsEP(BitsLoopMode);
+        pu->intraDirLIP[CHANNEL_TYPE_LUMA][i] = LIP_MODE[xMode];
+      }
+      for (int i = num_loop; i < loop_all; i++)
+      {
         pu->intraDirLIP[CHANNEL_TYPE_LUMA][i] = LIP_MODE[xMode];
       }
 

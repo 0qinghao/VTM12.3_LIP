@@ -51,7 +51,9 @@
 #include <cassert>
 
 // LIP 添加
-#define LIP_RESERVE_SIZE 0
+#define LIP_RESERVE_SIZE                                                                                               \
+  0   // 不要修改这个参数 早期用的，只用来申请内存空间；后来换方案了，不用 SIZE 定保留块，用像素点数量定
+#define LIP_RESERVE_CNT 15
 
 #define BitsLoopMode 2
 #define LIP_MODE_LIST                                                                                                  \
