@@ -1148,7 +1148,7 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   int               num_loop    = 0;
   for (int w = iWidth, h = iHeight; w >= 1 && h >= 1; w--, h--)
   {
-    num_loop++;  
+    num_loop++;
     if (w * h < LIP_RESERVE_CNT)
       break;
   }
@@ -1230,6 +1230,7 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     Bestbitnum = MAX_INT;
   }
 
+  Bestbitnum = MAX_INT;
   for (xMode = 0; xMode < LIP_MODE_NUM; xMode++)
   {
     int Mode = LIP_MODE[xMode];

@@ -1501,7 +1501,7 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
       assert(num_loop > 1);
       pu->num_loop = num_loop;
 
-      uint32_t xMode=0;
+      uint32_t xMode = 0;
       for (int i = 0; i < num_loop; i++)
       {
         xMode                                 = m_BinDecoder.decodeBinsEP(BitsLoopMode);
