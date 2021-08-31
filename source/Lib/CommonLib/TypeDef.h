@@ -53,11 +53,17 @@
 // LIP 添加
 #define LIP_RESERVE_SIZE 0
 
-#define BitsLoopMode 2
+#define BitsLoopMode 1
 #define LIP_MODE_LIST                                                                                                  \
   {                                                                                                                    \
-    0, 1, 18, 50                                                                                                       \
+    0, 1                                                                                                               \
   }
+
+// #define BitsLoopMode 2
+// #define LIP_MODE_LIST
+//   {
+//     0, 1, 18, 50
+//   }
 
 // #define BitsLoopMode 3
 // #define LIP_MODE_LIST
