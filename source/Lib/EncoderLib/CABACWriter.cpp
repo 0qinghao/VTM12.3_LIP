@@ -1145,10 +1145,19 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
     for (int k = 0; k < numBlocks; k++)
     {
       // int num_loop = pu->num_loop;
-      int       iWidth   = cu.block(compID).width;
-      int       iHeight  = cu.block(compID).height;
-      const int num_loop = (iWidth >= iHeight) ? iHeight : iWidth;
-      pu->num_loop       = num_loop;
+      int iWidth  = cu.block(compID).width;
+      int iHeight = cu.block(compID).height;
+      // const int num_loop = (iWidth >= iHeight) ? iHeight : iWidth;
+      int num_loop = 0;
+      for (int w = iWidth, h = iHeight; w >= 1 && h >= 1; w--, h--)
+      {
+        num_loop++;
+        if (w * h < LIP_RESERVE_CNT)
+          break;
+      }
+      assert(num_loop > 1);
+
+      pu->num_loop = num_loop;
       for (int i = 0; i < num_loop; i++)
       {
         m_BinEncoder.encodeBinsEP(pu->intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);

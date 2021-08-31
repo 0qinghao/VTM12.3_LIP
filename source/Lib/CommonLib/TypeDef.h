@@ -51,13 +51,30 @@
 #include <cassert>
 
 // LIP 添加
-#define LIP_RESERVE_SIZE 0
+#define LIP_RESERVE_SIZE                                                                                               \
+  0   // 不要修改这个参数 早期用的，只用来申请内存空间；后来换方案了，不用 SIZE 定保留块，用像素点数量定
+#define LIP_RESERVE_CNT                                                                                                \
+  15   // 由于代码实现的限制，有保留块的情况下，LIP 至少也需要 2 环，否则编码会出错，除非修改LIP架构；
+// 即：最小块 4x4 也需要 2 环，所以这个宏不能设置太大
 
-#define BitsLoopMode 2
+// TODO: check traditional PLANAR+LOCOi PLANAR+DC+An Angle Mode
+#define BitsLoopMode 1
 #define LIP_MODE_LIST                                                                                                  \
   {                                                                                                                    \
-    0, 1, 18, 50                                                                                                       \
+    0, 1                                                                                                               \
   }
+
+// #define BitsLoopMode 1
+// #define LIP_MODE_LIST
+//   {
+//     0, 1, 18, 50
+//   }
+
+// #define BitsLoopMode 2
+// #define LIP_MODE_LIST
+//   {
+//     0, 1, 18, 50
+//   }
 
 // #define BitsLoopMode 3
 // #define LIP_MODE_LIST

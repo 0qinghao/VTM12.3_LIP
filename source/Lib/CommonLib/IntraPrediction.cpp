@@ -1144,7 +1144,16 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   const ChannelType channelType = toChannelType(compID);
   const int         iWidth      = piPred.width;
   const int         iHeight     = piPred.height;
-  const int         num_loop    = (iWidth >= iHeight) ? iHeight : iWidth;
+  const int         loop_all    = (iWidth >= iHeight) ? iHeight : iWidth;
+  int               num_loop    = 0;
+  for (int w = iWidth, h = iHeight; w >= 1 && h >= 1; w--, h--)
+  {
+    num_loop++;
+    if (w * h < LIP_RESERVE_CNT)
+      break;
+  }
+  assert(num_loop > 1);
+
   CHECK(iWidth == 2, "Width of 2 is not supported");
   CHECK(PU::isMIP(pu, toChannelType(compId)), "We should not get here for MIP.");
   CHECK(floorLog2(iWidth) < 2 && pu.cs->pcv->noChroma2x2, "Size not allowed");
@@ -1193,7 +1202,8 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   }
   Bestbitnum = MAX_INT;
 
-  for (int loop = 1; loop < num_loop; loop++)
+  int loop = 1;
+  for (; loop < num_loop - 1; loop++)
   {
     for (xMode = 0; xMode < LIP_MODE_NUM; xMode++)
     {
@@ -1218,6 +1228,41 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     default: bitnum = xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop); break;
     }
     Bestbitnum = MAX_INT;
+  }
+
+  if (loop < loop_all)
+  {
+    Bestbitnum = MAX_INT;
+    for (xMode = 0; xMode < LIP_MODE_NUM; xMode++)
+    {
+      int Mode = LIP_MODE[xMode];
+      bitnum   = 0;
+      for (int loop_res = loop; loop_res < loop_all; loop_res++)
+      {
+        switch (Mode)
+        {
+        case (PLANAR_IDX): bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
+        case (DC_IDX): bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+        default: bitnum += xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, Mode, loop_res); break;
+        }
+      }
+      if (bitnum < Bestbitnum)
+      {
+        Bestbitnum                        = bitnum;
+        BestMode                          = xMode;
+        pu.intraDirLIP[channelType][loop] = BestMode;
+      }
+    }
+
+    for (int loop_res = loop; loop_res < loop_all; loop_res++)
+    {
+      switch (LIP_MODE[BestMode])
+      {
+      case (PLANAR_IDX): xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
+      case (DC_IDX): xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+      default: xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop_res); break;
+      }
+    }
   }
 }
 
