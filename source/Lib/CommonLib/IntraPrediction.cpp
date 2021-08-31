@@ -1230,39 +1230,40 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     Bestbitnum = MAX_INT;
   }
 
-  Bestbitnum = MAX_INT;
-  for (xMode = 0; xMode < LIP_MODE_NUM; xMode++)
+  if (loop < loop_all)
   {
-    int Mode = LIP_MODE[xMode];
-    bitnum   = 0;
-    for (int loop_res = loop; loop_res < loop_all; loop_res++)
+    Bestbitnum = MAX_INT;
+    for (xMode = 0; xMode < LIP_MODE_NUM; xMode++)
     {
-      switch (Mode)
+      int Mode = LIP_MODE[xMode];
+      bitnum   = 0;
+      for (int loop_res = loop; loop_res < loop_all; loop_res++)
       {
-      case (PLANAR_IDX): bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
-      case (DC_IDX): bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
-      default: bitnum += xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, Mode, loop_res); break;
+        switch (Mode)
+        {
+        case (PLANAR_IDX): bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
+        case (DC_IDX): bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+        default: bitnum += xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, Mode, loop_res); break;
+        }
+      }
+      if (bitnum < Bestbitnum)
+      {
+        Bestbitnum                        = bitnum;
+        BestMode                          = xMode;
+        pu.intraDirLIP[channelType][loop] = BestMode;
       }
     }
-    if (bitnum < Bestbitnum)
-    {
-      Bestbitnum = bitnum;
-      BestMode   = xMode;
-    }
-  }
-  pu.intraDirLIP[channelType][loop] = BestMode;
 
-  bitnum = 0;
-  for (int loop_res = loop; loop_res < loop_all; loop_res++)
-  {
-    switch (LIP_MODE[BestMode])
+    for (int loop_res = loop; loop_res < loop_all; loop_res++)
     {
-    case (PLANAR_IDX): bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
-    case (DC_IDX): bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
-    default: bitnum += xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop_res); break;
+      switch (LIP_MODE[BestMode])
+      {
+      case (PLANAR_IDX): xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
+      case (DC_IDX): xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+      default: xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop_res); break;
+      }
     }
   }
-  Bestbitnum = MAX_INT;
 }
 
 void IntraPrediction::predIntraAng(const ComponentID compId, PelBuf &piPred, const PredictionUnit &pu)
