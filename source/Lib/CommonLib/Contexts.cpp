@@ -41,18 +41,8 @@
 #include <cstring>
 #include <limits>
 
-
-const uint8_t ProbModelTables::m_RenormTable_32[32] =
-{
-  6,  5,  4,  4,
-  3,  3,  3,  3,
-  2,  2,  2,  2,
-  2,  2,  2,  2,
-  1,  1,  1,  1,
-  1,  1,  1,  1,
-  1,  1,  1,  1,
-  1,  1,  1,  1
-};
+const uint8_t ProbModelTables::m_RenormTable_32[32] = { 6, 5, 4, 4, 3, 3, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2,
+                                                        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };
 
 const BinFracBits ProbModelTables::m_binFracBits[256] = {
   { { 0x0005c, 0x48000 } }, { { 0x00116, 0x3b520 } }, { { 0x001d0, 0x356cb } }, { { 0x0028b, 0x318a9 } },
@@ -120,58 +110,57 @@ const BinFracBits ProbModelTables::m_binFracBits[256] = {
   { { 0x28beb, 0x0057e } }, { { 0x2a658, 0x004c0 } }, { { 0x2c531, 0x00403 } }, { { 0x2ea40, 0x00346 } },
   { { 0x318a9, 0x0028b } }, { { 0x356cb, 0x001d0 } }, { { 0x3b520, 0x00116 } }, { { 0x48000, 0x0005c } },
 };
-void BinProbModel_Std::init( int qp, int initId )
+void BinProbModel_Std::init(int qp, int initId)
 {
-  int slope = (initId >> 3) - 4;
-  int offset = ((initId & 7) * 18) + 1;
-  int inistate = ((slope   * (qp - 16)) >> 1) + offset;
-  int state_clip = inistate < 1 ? 1 : inistate > 127 ? 127 : inistate;
-  const int p1 = (state_clip << 8);
-  m_state[0]   = p1 & MASK_0;
-  m_state[1]   = p1 & MASK_1;
+  int       slope      = (initId >> 3) - 4;
+  int       offset     = ((initId & 7) * 18) + 1;
+  int       inistate   = ((slope * (qp - 16)) >> 1) + offset;
+  int       state_clip = inistate < 1 ? 1 : inistate > 127 ? 127 : inistate;
+  const int p1         = (state_clip << 8);
+  m_state[0]           = p1 & MASK_0;
+  m_state[1]           = p1 & MASK_1;
 }
 
-CtxSet::CtxSet( std::initializer_list<CtxSet> ctxSets )
+CtxSet::CtxSet(std::initializer_list<CtxSet> ctxSets)
 {
-  uint16_t  minOffset = std::numeric_limits<uint16_t>::max();
-  uint16_t  maxOffset = 0;
-  for( auto iter = ctxSets.begin(); iter != ctxSets.end(); iter++ )
+  uint16_t minOffset = std::numeric_limits<uint16_t>::max();
+  uint16_t maxOffset = 0;
+  for (auto iter = ctxSets.begin(); iter != ctxSets.end(); iter++)
   {
-    minOffset = std::min<uint16_t>( minOffset, (*iter).Offset              );
-    maxOffset = std::max<uint16_t>( maxOffset, (*iter).Offset+(*iter).Size );
+    minOffset = std::min<uint16_t>(minOffset, (*iter).Offset);
+    maxOffset = std::max<uint16_t>(maxOffset, (*iter).Offset + (*iter).Size);
   }
-  Offset  = minOffset;
-  Size    = maxOffset - minOffset;
+  Offset = minOffset;
+  Size   = maxOffset - minOffset;
 }
 
-const std::vector<uint8_t>& ContextSetCfg::getInitTable( unsigned initId )
+const std::vector<uint8_t> &ContextSetCfg::getInitTable(unsigned initId)
 {
-  CHECK( initId >= (unsigned)sm_InitTables.size(),
-         "Invalid initId (" << initId << "), only " << sm_InitTables.size() << " tables defined." );
+  CHECK(initId >= (unsigned) sm_InitTables.size(),
+        "Invalid initId (" << initId << "), only " << sm_InitTables.size() << " tables defined.");
   return sm_InitTables[initId];
 }
 
-CtxSet ContextSetCfg::addCtxSet( std::initializer_list<std::initializer_list<uint8_t>> initSet2d )
+CtxSet ContextSetCfg::addCtxSet(std::initializer_list<std::initializer_list<uint8_t>> initSet2d)
 {
   const std::size_t startIdx  = sm_InitTables[0].size();
-  const std::size_t numValues = ( *initSet2d.begin() ).size();
-        std::size_t setId     = 0;
-  for( auto setIter = initSet2d.begin(); setIter != initSet2d.end() && setId < sm_InitTables.size(); setIter++, setId++ )
+  const std::size_t numValues = (*initSet2d.begin()).size();
+  std::size_t       setId     = 0;
+  for (auto setIter = initSet2d.begin(); setIter != initSet2d.end() && setId < sm_InitTables.size(); setIter++, setId++)
   {
-    const std::initializer_list<uint8_t>& initSet   = *setIter;
-    std::vector<uint8_t>&           initTable = sm_InitTables[setId];
-    CHECK( initSet.size() != numValues,
-           "Number of init values do not match for all sets (" << initSet.size() << " != " << numValues << ")." );
-    initTable.resize( startIdx + numValues );
+    const std::initializer_list<uint8_t> &initSet   = *setIter;
+    std::vector<uint8_t> &                initTable = sm_InitTables[setId];
+    CHECK(initSet.size() != numValues,
+          "Number of init values do not match for all sets (" << initSet.size() << " != " << numValues << ").");
+    initTable.resize(startIdx + numValues);
     std::size_t elemId = startIdx;
-    for( auto elemIter = ( *setIter ).begin(); elemIter != ( *setIter ).end(); elemIter++, elemId++ )
+    for (auto elemIter = (*setIter).begin(); elemIter != (*setIter).end(); elemIter++, elemId++)
     {
       initTable[elemId] = *elemIter;
     }
   }
-  return CtxSet( (uint16_t)startIdx, (uint16_t)numValues );
+  return CtxSet((uint16_t) startIdx, (uint16_t) numValues);
 }
-
 
 #define CNU 35
 std::vector<std::vector<uint8_t>> ContextSetCfg::sm_InitTables(NUMBER_OF_SLICE_TYPES + 1);
@@ -459,6 +448,24 @@ const CtxSet ContextSetCfg::QtCbf[] =
 };
 
 const CtxSet ContextSetCfg::SigCoeffGroup[] =
+{
+  ContextSetCfg::addCtxSet
+  ({
+    {  25,  45, },
+    {  25,  30, },
+    {  18,  31, },
+    {   8,   5, },
+  }),
+  ContextSetCfg::addCtxSet
+  ({
+    {  25,  14, },
+    {  25,  45, },
+    {  25,  15, },
+    {   5,   8, },
+  })
+};
+
+const CtxSet ContextSetCfg::CoeffProcessGroup[] =
 {
   ContextSetCfg::addCtxSet
   ({
@@ -873,78 +880,73 @@ const CtxSet ContextSetCfg::TsResidualSign = ContextSetCfg::addCtxSet
 });
 // clang-format on
 
-const unsigned ContextSetCfg::NumberOfContexts = (unsigned)ContextSetCfg::sm_InitTables[0].size();
-
+const unsigned ContextSetCfg::NumberOfContexts = (unsigned) ContextSetCfg::sm_InitTables[0].size();
 
 // combined sets
-const CtxSet ContextSetCfg::Palette = { ContextSetCfg::RotationFlag, ContextSetCfg::RunTypeFlag, ContextSetCfg::IdxRunModel, ContextSetCfg::CopyRunModel };
-const CtxSet ContextSetCfg::Sao = { ContextSetCfg::SaoMergeFlag, ContextSetCfg::SaoTypeIdx };
+const CtxSet ContextSetCfg::Palette = { ContextSetCfg::RotationFlag, ContextSetCfg::RunTypeFlag,
+                                        ContextSetCfg::IdxRunModel, ContextSetCfg::CopyRunModel };
+const CtxSet ContextSetCfg::Sao     = { ContextSetCfg::SaoMergeFlag, ContextSetCfg::SaoTypeIdx };
 
-const CtxSet ContextSetCfg::Alf = { ContextSetCfg::ctbAlfFlag, ContextSetCfg::ctbAlfAlternative, ContextSetCfg::AlfUseTemporalFilt };
+const CtxSet ContextSetCfg::Alf = { ContextSetCfg::ctbAlfFlag, ContextSetCfg::ctbAlfAlternative,
+                                    ContextSetCfg::AlfUseTemporalFilt };
 
-template <class BinProbModel>
-CtxStore<BinProbModel>::CtxStore()
-  : m_CtxBuffer ()
-  , m_Ctx       ( nullptr )
-{}
+template<class BinProbModel> CtxStore<BinProbModel>::CtxStore() : m_CtxBuffer(), m_Ctx(nullptr) {}
 
-template <class BinProbModel>
-CtxStore<BinProbModel>::CtxStore( bool dummy )
-  : m_CtxBuffer ( ContextSetCfg::NumberOfContexts )
-  , m_Ctx       ( m_CtxBuffer.data() )
-{}
-
-template <class BinProbModel>
-CtxStore<BinProbModel>::CtxStore( const CtxStore<BinProbModel>& ctxStore )
-  : m_CtxBuffer ( ctxStore.m_CtxBuffer )
-  , m_Ctx       ( m_CtxBuffer.data() )
-{}
-
-template <class BinProbModel>
-void CtxStore<BinProbModel>::init( int qp, int initId )
+template<class BinProbModel>
+CtxStore<BinProbModel>::CtxStore(bool dummy) : m_CtxBuffer(ContextSetCfg::NumberOfContexts), m_Ctx(m_CtxBuffer.data())
 {
-  const std::vector<uint8_t>& initTable = ContextSetCfg::getInitTable( initId );
-  CHECK( m_CtxBuffer.size() != initTable.size(),
-        "Size of init table (" << initTable.size() << ") does not match size of context buffer (" << m_CtxBuffer.size() << ")." );
+}
+
+template<class BinProbModel>
+CtxStore<BinProbModel>::CtxStore(const CtxStore<BinProbModel> &ctxStore)
+  : m_CtxBuffer(ctxStore.m_CtxBuffer), m_Ctx(m_CtxBuffer.data())
+{
+}
+
+template<class BinProbModel> void CtxStore<BinProbModel>::init(int qp, int initId)
+{
+  const std::vector<uint8_t> &initTable = ContextSetCfg::getInitTable(initId);
+  CHECK(m_CtxBuffer.size() != initTable.size(), "Size of init table (" << initTable.size()
+                                                                       << ") does not match size of context buffer ("
+                                                                       << m_CtxBuffer.size() << ").");
   const std::vector<uint8_t> &rateInitTable = ContextSetCfg::getInitTable(NUMBER_OF_SLICE_TYPES);
   CHECK(m_CtxBuffer.size() != rateInitTable.size(),
         "Size of rate init table (" << rateInitTable.size() << ") does not match size of context buffer ("
                                     << m_CtxBuffer.size() << ").");
-  int clippedQP = Clip3( 0, MAX_QP, qp );
-  for( std::size_t k = 0; k < m_CtxBuffer.size(); k++ )
+  int clippedQP = Clip3(0, MAX_QP, qp);
+  for (std::size_t k = 0; k < m_CtxBuffer.size(); k++)
   {
-    m_CtxBuffer[k].init( clippedQP, initTable[k] );
+    m_CtxBuffer[k].init(clippedQP, initTable[k]);
     m_CtxBuffer[k].setLog2WindowSize(rateInitTable[k]);
   }
 }
 
-template <class BinProbModel>
-void CtxStore<BinProbModel>::setWinSizes( const std::vector<uint8_t>& log2WindowSizes )
+template<class BinProbModel> void CtxStore<BinProbModel>::setWinSizes(const std::vector<uint8_t> &log2WindowSizes)
 {
-  CHECK( m_CtxBuffer.size() != log2WindowSizes.size(),
-        "Size of window size table (" << log2WindowSizes.size() << ") does not match size of context buffer (" << m_CtxBuffer.size() << ")." );
-  for( std::size_t k = 0; k < m_CtxBuffer.size(); k++ )
+  CHECK(m_CtxBuffer.size() != log2WindowSizes.size(),
+        "Size of window size table (" << log2WindowSizes.size() << ") does not match size of context buffer ("
+                                      << m_CtxBuffer.size() << ").");
+  for (std::size_t k = 0; k < m_CtxBuffer.size(); k++)
   {
-    m_CtxBuffer[k].setLog2WindowSize( log2WindowSizes[k] );
+    m_CtxBuffer[k].setLog2WindowSize(log2WindowSizes[k]);
   }
 }
 
-template <class BinProbModel>
-void CtxStore<BinProbModel>::loadPStates( const std::vector<uint16_t>& probStates )
+template<class BinProbModel> void CtxStore<BinProbModel>::loadPStates(const std::vector<uint16_t> &probStates)
 {
-  CHECK( m_CtxBuffer.size() != probStates.size(),
-        "Size of prob states table (" << probStates.size() << ") does not match size of context buffer (" << m_CtxBuffer.size() << ")." );
-  for( std::size_t k = 0; k < m_CtxBuffer.size(); k++ )
+  CHECK(m_CtxBuffer.size() != probStates.size(), "Size of prob states table ("
+                                                   << probStates.size() << ") does not match size of context buffer ("
+                                                   << m_CtxBuffer.size() << ").");
+  for (std::size_t k = 0; k < m_CtxBuffer.size(); k++)
   {
-    m_CtxBuffer[k].setState( probStates[k] );
+    m_CtxBuffer[k].setState(probStates[k]);
   }
 }
 
-template <class BinProbModel>
-void CtxStore<BinProbModel>::savePStates( std::vector<uint16_t>& probStates ) const
+template<class BinProbModel> void CtxStore<BinProbModel>::savePStates(std::vector<uint16_t> &probStates) const
 {
-  probStates.resize( m_CtxBuffer.size(), uint16_t(0) );
-  for( std::size_t k = 0; k < m_CtxBuffer.size(); k++ )
+  probStates.resize(m_CtxBuffer.size(), uint16_t(0));
+  for (std::size_t k = 0; k < m_CtxBuffer.size(); k++)
   {
     probStates[k] = m_CtxBuffer[k].getState();
   }
@@ -952,13 +954,10 @@ void CtxStore<BinProbModel>::savePStates( std::vector<uint16_t>& probStates ) co
 
 template class CtxStore<BinProbModel_Std>;
 
-Ctx::Ctx()                                  : m_BPMType( BPM_Undefined )                        {}
-Ctx::Ctx( const BinProbModel_Std*   dummy ) : m_BPMType( BPM_Std   ), m_CtxStore_Std  ( true )  {}
+Ctx::Ctx() : m_BPMType(BPM_Undefined) {}
+Ctx::Ctx(const BinProbModel_Std *dummy) : m_BPMType(BPM_Std), m_CtxStore_Std(true) {}
 
-Ctx::Ctx( const Ctx& ctx )
-  : m_BPMType         ( ctx.m_BPMType )
-  , m_CtxStore_Std    ( ctx.m_CtxStore_Std    )
+Ctx::Ctx(const Ctx &ctx) : m_BPMType(ctx.m_BPMType), m_CtxStore_Std(ctx.m_CtxStore_Std)
 {
-  ::memcpy( m_GRAdaptStats, ctx.m_GRAdaptStats, sizeof( unsigned ) * RExt__GOLOMB_RICE_ADAPTATION_STATISTICS_SETS );
+  ::memcpy(m_GRAdaptStats, ctx.m_GRAdaptStats, sizeof(unsigned) * RExt__GOLOMB_RICE_ADAPTATION_STATISTICS_SETS);
 }
-

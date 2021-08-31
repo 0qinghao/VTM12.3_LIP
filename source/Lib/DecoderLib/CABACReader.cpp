@@ -3077,7 +3077,8 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
     }
   }
 
-  int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
+  // int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
+  int CoeffProcessFlag = m_BinDecoder.decodeBin(cctx.CoeffProcessCtxId());
   if (CoeffProcessFlag)
   {
     int  k, l;
