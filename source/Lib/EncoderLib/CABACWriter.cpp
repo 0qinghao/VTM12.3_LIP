@@ -3606,6 +3606,7 @@ void CABACWriter::LIP_flag(bool LIPPUFlag)
 
   // m_BinEncoder.encodeBinEP(LIPPUFlag);
 
+  // flg err can't decode
   unsigned ctxId = DeriveCtx::CtxLIPFlag();
   m_BinEncoder.encodeBin(LIPPUFlag, Ctx::MipFlag(ctxId));
 }
