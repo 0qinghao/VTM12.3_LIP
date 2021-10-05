@@ -3216,6 +3216,27 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
 void IntraPrediction::initIntraPatternChTypeLIP(const CodingUnit &cu, const CompArea &area,
                                                 const bool forceRefFilterFlag)
 {
+  // CHECK(area.width == 2, "Width of 2 is not supported");
+  // const CodingStructure &cs = *cu.cs;
+
+  // if (!forceRefFilterFlag)
+  // {
+  //   initPredIntraParams(*cu.firstPU, area, *cs.sps);
+  // }
+
+  // Pel *refBufUnfiltered = m_refBuffer[area.compID][PRED_BUF_UNFILTERED];
+  // Pel *refBufFiltered   = m_refBuffer[area.compID][PRED_BUF_FILTERED];
+
+  // setReferenceArrayLengths(area);
+
+  // // ----- Step 1: unfiltered reference samples -----
+  // // xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
+  // xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
+  // // ----- Step 2: filtered reference samples -----
+  // if (m_ipaParam.refFilterFlag || forceRefFilterFlag)
+  // {
+  //   xFilterReferenceSamplesLIP(refBufUnfiltered, refBufFiltered, area, *cs.sps, cu.firstPU->multiRefIdx);
+  // }
   CHECK(area.width == 2, "Width of 2 is not supported");
   const CodingStructure &cs = *cu.cs;
 
@@ -3230,12 +3251,11 @@ void IntraPrediction::initIntraPatternChTypeLIP(const CodingUnit &cu, const Comp
   setReferenceArrayLengths(area);
 
   // ----- Step 1: unfiltered reference samples -----
-  // xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
-  xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
+  xFillReferenceSamples(cs.picture->getRecoBuf(area), refBufUnfiltered, area, cu);
   // ----- Step 2: filtered reference samples -----
   if (m_ipaParam.refFilterFlag || forceRefFilterFlag)
   {
-    xFilterReferenceSamplesLIP(refBufUnfiltered, refBufFiltered, area, *cs.sps, cu.firstPU->multiRefIdx);
+    xFilterReferenceSamples(refBufUnfiltered, refBufFiltered, area, *cs.sps, cu.firstPU->multiRefIdx);
   }
 }
 

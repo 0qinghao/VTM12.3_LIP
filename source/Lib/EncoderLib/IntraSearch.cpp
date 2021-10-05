@@ -807,10 +807,10 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
   // after this point, don't use numModesForFullRD
   //===== check modes (using r-d costs) =====
   // 加入 LIP 模式
-  ModeInfo modeLIP(false, false, 0, NOT_INTRA_SUBPARTITIONS, 0, true);
-  numModesForFullRD++;
-  uiRdModeList.push_back(modeLIP);
-  CandCostList.push_back(0);
+  // ModeInfo modeLIP(false, false, 0, NOT_INTRA_SUBPARTITIONS, 0, true);
+  // numModesForFullRD++;
+  // uiRdModeList.push_back(modeLIP);
+  // CandCostList.push_back(0);
 
   ModeInfo uiBestPUMode;
   int      bestBDPCMMode    = 0;

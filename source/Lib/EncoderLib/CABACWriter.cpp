@@ -2820,7 +2820,8 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   {
     for (l = 1; l < uiWidth; l++)
     {
-      amp_hevc += abs(coeff[k * uiWidth + l]);
+      // amp_hevc += abs(coeff[k * uiWidth + l]);
+      amp_hevc += -1;
     }
   }
   for (l = 0; l < uiWidth; l++)
