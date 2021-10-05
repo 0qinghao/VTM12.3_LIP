@@ -794,7 +794,7 @@ void EncCu::xCompressCU(CodingStructure *&tempCS, CodingStructure *&bestCS, Part
     {
       xCheckRDCostHashInter(tempCS, bestCS, partitioner, currTestMode);
     }
-    // 不进入
+    // 
     else if (currTestMode.type == ETM_AFFINE)
     {
       xCheckRDCostAffineMerge2Nx2N(tempCS, bestCS, partitioner, currTestMode);
@@ -805,7 +805,7 @@ void EncCu::xCompressCU(CodingStructure *&tempCS, CodingStructure *&bestCS, Part
       xReuseCachedResult(tempCS, bestCS, partitioner);
     }
 #endif
-    // 不进入
+    // 
     else if (currTestMode.type == ETM_MERGE_SKIP)
     {
       xCheckRDCostMerge2Nx2N(tempCS, bestCS, partitioner, currTestMode);
@@ -815,14 +815,14 @@ void EncCu::xCompressCU(CodingStructure *&tempCS, CodingStructure *&bestCS, Part
         cu->mmvdSkip = cu->skip == false ? false : cu->mmvdSkip;
       }
     }
-    // 不进入
+    // 
     else if (currTestMode.type == ETM_MERGE_GEO)
     {
       xCheckRDCostMergeGeo2Nx2N(tempCS, bestCS, partitioner, currTestMode);
     }
     else if (currTestMode.type == ETM_INTRA)
     {
-      // 不进入
+      // 
       if (slice.getSPS()->getUseColorTrans() && !CS::isDualITree(*tempCS))
       {
         bool skipSecColorSpace = false;

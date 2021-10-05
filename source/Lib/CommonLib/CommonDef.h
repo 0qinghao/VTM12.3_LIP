@@ -229,6 +229,7 @@ static const int NUM_EXT_LUMA_MODE = 28;
 static const int NUM_DIR    = (((NUM_LUMA_MODE - 3) >> 2) + 1);
 static const int PLANAR_IDX = 0;                         ///< index for intra PLANAR mode
 static const int DC_IDX     = 1;                         ///< index for intra DC     mode
+static const int SAPE_IDX   = 2;
 static const int HOR_IDX    = (1 * (NUM_DIR - 1) + 2);   ///< index for intra HORIZONTAL mode
 static const int DIA_IDX    = (2 * (NUM_DIR - 1) + 2);   ///< index for intra DIAGONAL   mode
 static const int VER_IDX    = (3 * (NUM_DIR - 1) + 2);   ///< index for intra VERTICAL   mode

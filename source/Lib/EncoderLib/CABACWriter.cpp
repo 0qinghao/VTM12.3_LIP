@@ -1161,6 +1161,18 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
       for (int i = 0; i < num_loop; i++)
       {
         m_BinEncoder.encodeBinsEP(pu->intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);
+        /*if (pu->intraDirLIP[CHANNEL_TYPE_LUMA][i] == 0)
+        {
+          m_BinEncoder.encodeBinsEP(0, 1);
+        }
+        if (pu->intraDirLIP[CHANNEL_TYPE_LUMA][i] == 1)
+        {
+          m_BinEncoder.encodeBinsEP(2, 2);
+        }
+        if (pu->intraDirLIP[CHANNEL_TYPE_LUMA][i] == 2)
+        {
+          m_BinEncoder.encodeBinsEP(3, 2);
+        }*/
       }
       pu = pu->next;
     }
@@ -1339,6 +1351,18 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
     for (int i = 0; i < num_loop; i++)
     {
       m_BinEncoder.encodeBinsEP(pu.intraDirLIP[CHANNEL_TYPE_LUMA][i], BitsLoopMode);
+      /*if (pu.intraDirLIP[CHANNEL_TYPE_LUMA][i] == 0)
+      {
+        m_BinEncoder.encodeBinsEP(0, 1);
+      }
+      if (pu.intraDirLIP[CHANNEL_TYPE_LUMA][i] == 1)
+      {
+        m_BinEncoder.encodeBinsEP(2, 2);
+      }
+      if (pu.intraDirLIP[CHANNEL_TYPE_LUMA][i] == 2)
+      {
+        m_BinEncoder.encodeBinsEP(3, 2);
+      }*/
     }
   }
 }
@@ -2810,7 +2834,7 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   CoeffCodingContext cctx(tu, compID, signHiding);
   const TCoeff *     coeff = tu.getCoeffs(compID).buf;
 
-  // RMED 编码部分
+  // RMED
   uint   uiWidth  = tu.blocks[compID].width;
   uint   uiHeight = tu.blocks[compID].height;
   int    k, l;
@@ -2820,9 +2844,10 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   {
     for (l = 1; l < uiWidth; l++)
     {
-      amp_hevc += abs(coeff[k * uiWidth + l]);
+      // amp_hevc += abs(coeff[k * uiWidth + l]);
     }
   }
+  amp_hevc = -1;
   for (l = 0; l < uiWidth; l++)
   {
     coeffReLT[l] = coeff[l];

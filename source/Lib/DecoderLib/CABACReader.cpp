@@ -3095,8 +3095,8 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
   if (CoeffProcessFlag)
   {
     int  k, l;
-    uint uiWidth  = tu.blocks[compID].width;
-    uint uiHeight = tu.blocks[compID].height;
+    uint32_t uiWidth  = tu.blocks[compID].width;
+    uint32_t uiHeight = tu.blocks[compID].height;
     for (k = 1; k < uiHeight; k++)
     {
       for (l = 1; l < uiWidth; l++)
