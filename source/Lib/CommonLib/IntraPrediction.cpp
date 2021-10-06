@@ -3230,13 +3230,14 @@ void IntraPrediction::initIntraPatternChTypeLIP(const CodingUnit &cu, const Comp
   // setReferenceArrayLengths(area);
 
   // // ----- Step 1: unfiltered reference samples -----
-  // // xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
   // xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
   // // ----- Step 2: filtered reference samples -----
   // if (m_ipaParam.refFilterFlag || forceRefFilterFlag)
   // {
   //   xFilterReferenceSamplesLIP(refBufUnfiltered, refBufFiltered, area, *cs.sps, cu.firstPU->multiRefIdx);
   // }
+
+  // src backup
   CHECK(area.width == 2, "Width of 2 is not supported");
   const CodingStructure &cs = *cu.cs;
 
