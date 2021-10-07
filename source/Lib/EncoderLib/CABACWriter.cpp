@@ -2834,7 +2834,7 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   CoeffCodingContext cctx(tu, compID, signHiding);
   const TCoeff *     coeff = tu.getCoeffs(compID).buf;
 
-  // RMED
+  // RMED 
   uint   uiWidth  = tu.blocks[compID].width;
   uint   uiHeight = tu.blocks[compID].height;
   int    k, l;
@@ -2844,10 +2844,9 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   {
     for (l = 1; l < uiWidth; l++)
     {
-      // amp_hevc += abs(coeff[k * uiWidth + l]);
+      amp_hevc += abs(coeff[k * uiWidth + l]);
     }
   }
-  amp_hevc = -1;
   for (l = 0; l < uiWidth; l++)
   {
     coeffReLT[l] = coeff[l];

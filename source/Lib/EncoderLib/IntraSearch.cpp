@@ -870,12 +870,12 @@ bool IntraSearch::estIntraPredLumaQTLIP(CodingUnit &cu, Partitioner &partitioner
     }
     else
     {
-      // if (cu.lwidth() < 64)
-      // {
-      //   tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
-      //                                               mtsLastCheckId, moreProbMTSIdxFirst);
-      // }
-      // validReturn |= tmpValidReturn;
+      if (cu.lwidth() < 64)
+      {
+        tmpValidReturn = xRecurIntraCodingLumaQTLIP(*csTemp, partitioner, mtsCheckRangeFlag, mtsFirstCheckId,
+                                                    mtsLastCheckId, moreProbMTSIdxFirst);
+      }
+      validReturn |= tmpValidReturn;
     }
 
     // DTRACE(g_trace_ctx, D_INTRA_COST, "IntraCost T [x=%d,y=%d,w=%d,h=%d] %f (%d,%d,%d,%d,%d,%d) \n", cu.blocks[0].x,

@@ -51,17 +51,22 @@
 #include <cassert>
 
 // LIP
-#define LIP_RESERVE_SIZE 0
-#define LIP_RESERVE_CNT 15
+#define LIP_RESERVE_SIZE                                                                                               \
+  0   
+#define LIP_RESERVE_CNT                                                                                                \
+  15   
 
 // TODO: check traditional PLANAR+LOCOi PLANAR+DC+An Angle Mode
 #define BitsLoopMode 3
-#define LIP_MODE_LIST {0, 1, 2, 10, 18, 34, 50, 66}
+#define LIP_MODE_LIST                                                                                                  \
+  {                                                                                                                    \
+    0, 1, 2, 10, 18, 34, 50, 66                                                                                                        \
+  }
 
 // #define BitsLoopMode 1
 // #define LIP_MODE_LIST
 //   {
-//     18, 18
+//     0, 1, 18, 50
 //   }
 
 // #define BitsLoopMode 2
