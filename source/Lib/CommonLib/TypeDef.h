@@ -50,17 +50,20 @@
 #include <assert.h>
 #include <cassert>
 
+// DEBUG
+#define ENABLE_LIP 0
+#define ENABLE_RMED 0
+#define ENABLE_FILL_LIP_REF 0
+
 // LIP
-#define LIP_RESERVE_SIZE                                                                                               \
-  0   
-#define LIP_RESERVE_CNT                                                                                                \
-  15   
+#define LIP_RESERVE_SIZE 0
+#define LIP_RESERVE_CNT 15
 
 // TODO: check traditional PLANAR+LOCOi PLANAR+DC+An Angle Mode
 #define BitsLoopMode 3
 #define LIP_MODE_LIST                                                                                                  \
   {                                                                                                                    \
-    0, 1, 2, 10, 18, 34, 50, 66                                                                                                        \
+    0, 1, 2, 10, 18, 34, 50, 66                                                                                        \
   }
 
 // #define BitsLoopMode 1

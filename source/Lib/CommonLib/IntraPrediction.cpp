@@ -3052,11 +3052,11 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
       currUnit++;
     }
   }
-  //ртиойг╤т©ИмБ╡н©╪оЯкь╣длНЁД
-  //╫собю╢лНЁД©ИдзоЯкь
-  //н╙ак╥╫╠Цбк╡╗р╩ппр╩ап╣д╡ывВё╛╤тсз©ИдзоЯкь╣длНЁДкЁпРн╙охLпм╣дппё╛тыLпм╣дапё╛╫свеобр╩╩╥Lпм╣дппё╛обр╩╩╥Lпм╣дап
+  //О©╫О©╫О©╫О©╫О©╫г╤т©О©╫О©╫О©╫н©О©╫О©╫О©╫О©╫ь╣О©╫О©╫О©╫О©╫
+  //О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫
+  //н╙О©╫к╥О©╫О©╫О©╫О©╫к╡О©╫р╩О©╫О©╫р╩О©╫п╣д╡О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫з©О©╫О©╫О©╫О©╫О©╫О©╫ь╣О©╫О©╫О©╫О©╫кЁО©╫О©╫н╙О©╫О©╫LО©╫м╣О©╫О©╫пёО©╫О©╫О©╫LО©╫м╣О©╫О©╫пёО©╫О©╫О©╫О©╫О©╫О©╫О©╫р╩О©╫О©╫LО©╫м╣О©╫О©╫пёО©╫О©╫О©╫р╩О©╫О©╫LО©╫м╣О©╫О©╫О©╫
   // ptrSrc =
-  //  resBuf;   //╢с╣╠г╟©И╣двСио╫г╣зр╩╦Ж©╙й╪лНЁД,╣╚╢Ф╢╒©у╪Джпсисз╣зр╩пп╣зр╩ап╥еак©ИмБ╣д╡н©╪оЯкькЫртр╙╢с╣з╤Чпп╣з╤Чап©╙й╪
+  //  resBuf;   //О©╫с╣О©╫г╟О©╫О©╫О©╫О©╫О©╫О©╫о╫г╣О©╫р╩О©╫О©╫О©╫О©╫й╪О©╫О©╫О©╫,О©╫О©╫О©╫Ф╢╒О©╫у╪О©╫О©╫О©╫О©╫О©╫О©╫з╣О©╫р╩О©╫п╣О©╫р╩О©╫п╥О©╫О©╫к©О©╫О©╫О©╫д╡н©О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫р╙О©╫с╣з╤О©╫О©╫п╣з╤О©╫О©╫п©О©╫й╪
   // int    k, l;
   // for (k = 1; k < tuHeight; k++)
   // {
@@ -3066,9 +3066,9 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
   //     //amp_hevc=-1;
   //   }
   // }
-  int offset = 0;   //р╩ппр╩ап╡н©╪оЯкькЫу╪сц╣дн╩жц
-  // int maxsize = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//╠Мй╬╣╠г╟©ИжпLпм╣дйЩа©
-  ptrDst = refBufUnfiltered + predStride + predHSize + 1;   //ж╦уКж╦╣╫refBufUnfilteredжплНЁДмЙ╠о╨Ср╩╦Ж©ун╩
+  int offset = 0;   //р╩О©╫О©╫р╩О©╫п╡н©О©╫О©╫О©╫О©╫О©╫О©╫О©╫у╪О©╫ц╣О©╫н╩О©╫О©╫
+  // int maxsize = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//О©╫О©╫й╬О©╫О©╫г╟О©╫О©╫О©╫О©╫LО©╫м╣О©╫О©╫О©╫О©╫О©╫
+  ptrDst = refBufUnfiltered + predStride + predHSize + 1;   //ж╦О©╫О©╫ж╦О©╫О©╫refBufUnfilteredО©╫О©╫О©╫О©╫О©╫О©╫О©╫о╨О©╫р╩О©╫О©╫О©╫О©╫н╩
   for (int q = 0; q < predStride; q++)
   {
     if (q < tuHeight)
@@ -3083,7 +3083,7 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
         }
         else
         {
-          ptrDst[offset] = ptrDst[offset - 1];   ////йёобн╩жцх╚╡©╦╢жфвН╨Ср╩╦Жспп╖ж╣
+          ptrDst[offset] = ptrDst[offset - 1];   ////йёО©╫О©╫н╩О©╫О©╫х╚О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫р╩О©╫О©╫О©╫О©╫п╖ж╣
           //printf("residual = %d\n", ptrDst[offset]);
           offset++;
         }
@@ -3093,7 +3093,7 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
     {
       for (int p = 0; p < predStride; p++)
       {
-        ptrDst[offset] = ptrDst[offset - predStride];   //ап╣дю╘у╧лНЁДн╙лНЁДфДуЩио╥╫╣ддг╦Жж╣
+        ptrDst[offset] = ptrDst[offset - predStride];   //О©╫п╣О©╫О©╫О©╫у╧О©╫О©╫О©╫н╙О©╫О©╫О©╫О©╫О©╫О©╫О©╫О©╫о╥О©╫О©╫О©╫О©╫г╦О©╫ж╣
         //printf("residual = %d\n", ptrDst[offset]);
         offset++;
       }
@@ -3413,11 +3413,13 @@ void IntraPrediction::initIntraPatternChTypeDECLIP(TransformUnit &tu, const Comp
 
   setReferenceArrayLengths(area);
   const TCoeff *coeff = tu.getCoeffs(compID).buf;
-  // ----- Step 1: unfiltered reference samples -----
-  // xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
-  // xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
+// ----- Step 1: unfiltered reference samples -----
+#if ENABLE_FILL_LIP_REF
   xFillReferenceSamplesDECLIP(cs.picture->getRecoBuf(area), cs.picture->getResiBuf(area), refBufUnfiltered, area, cu,
                               coeff);
+#else
+  xFillReferenceSamples(cs.picture->getRecoBuf(area), refBufUnfiltered, area, cu);
+#endif
   // ----- Step 2: filtered reference samples -----
   if (m_ipaParam.refFilterFlag || forceRefFilterFlag)
   {
@@ -3441,9 +3443,12 @@ void IntraPrediction::initIntraPatternChTypeLIP(const CodingUnit &cu, const Comp
 
   setReferenceArrayLengths(area);
 
-  // ----- Step 1: unfiltered reference samples -----
-  // xFillReferenceSamples( cs.picture->getRecoBuf( area ), refBufUnfiltered, area, cu );
+// ----- Step 1: unfiltered reference samples -----
+#if ENABLE_FILL_LIP_REF
   xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
+#else
+  xFillReferenceSamples(cs.picture->getRecoBuf(area), refBufUnfiltered, area, cu);
+#endif
   // ----- Step 2: filtered reference samples -----
   if (m_ipaParam.refFilterFlag || forceRefFilterFlag)
   {

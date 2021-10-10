@@ -1038,9 +1038,11 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
   unsigned        ipred_modes[4];
   PredictionUnit *pu = cu.firstPU;
 
+#if ENABLE_LIP
   LIP_flag(pu->LIPPUFlag);
 
   if (pu->LIPPUFlag == false)
+#endif
   {
     mip_flag(cu);
     if (cu.mipFlag)
@@ -1138,6 +1140,7 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
       pu = pu->next;
     }
   }
+#if ENABLE_LIP
   else   // 编码 LIP mode
   {
     ComponentID compID = COMPONENT_Y;
@@ -1177,6 +1180,7 @@ void CABACWriter::intra_luma_pred_modes(const CodingUnit &cu)
       pu = pu->next;
     }
   }
+#endif
 }
 
 // void CABACWriter::intra_luma_pred_mode_LIP(const PredictionUnit &pu)
@@ -1276,9 +1280,11 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
   unsigned ipred_mode = pu.intraDir[0];
   unsigned mpm_idx    = numMPMs;
 
+#if ENABLE_LIP
   LIP_flag(pu.LIPPUFlag);
 
   if (pu.LIPPUFlag == false)
+#endif
   {
     mip_flag(*pu.cu);
     if (pu.cu->mipFlag)
@@ -1345,6 +1351,7 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
                          NUM_LUMA_MODE - NUM_MOST_PROBABLE_MODES);   // Remaining mode is truncated binary coded
     }
   }
+#if ENABLE_LIP
   else
   {
     int num_loop = pu.num_loop;
@@ -1365,6 +1372,7 @@ void CABACWriter::intra_luma_pred_mode(const PredictionUnit &pu)
       }*/
     }
   }
+#endif
 }
 
 void CABACWriter::intra_chroma_pred_modes(const CodingUnit &cu)
@@ -2834,12 +2842,13 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
   CoeffCodingContext cctx(tu, compID, signHiding);
   const TCoeff *     coeff = tu.getCoeffs(compID).buf;
 
-  // RMED 
+  // RMED
   uint   uiWidth  = tu.blocks[compID].width;
   uint   uiHeight = tu.blocks[compID].height;
   int    k, l;
   double amp_hevc = 0, amp_LT = 0;
   TCoeff coeffReLT[uiHeight * uiWidth];
+#if ENABLE_RMED
   for (k = 1; k < uiHeight; k++)
   {
     for (l = 1; l < uiWidth; l++)
@@ -2883,13 +2892,16 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
       amp_LT += abs(coeffReLT[k * uiWidth + l]);
     }
   }
+#endif
 
   const TCoeff *coeffToBeEnc;
+#if ENABLE_RMED
   if (amp_LT - amp_hevc < 0)
   {
     coeffToBeEnc = coeffReLT;
   }
   else
+#endif
   {
     coeffToBeEnc = coeff;
   }
@@ -2961,6 +2973,7 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
     }
   }
 
+#if ENABLE_RMED
   if (amp_LT - amp_hevc < 0)
   {
     // m_BinEncoder.encodeBinEP(1);
@@ -2971,6 +2984,7 @@ void CABACWriter::residual_coding(const TransformUnit &tu, ComponentID compID, C
     // m_BinEncoder.encodeBinEP(0);
     m_BinEncoder.encodeBin(0, cctx.CoeffProcessCtxId());
   }
+#endif
 }
 
 void CABACWriter::ts_flag(const TransformUnit &tu, ComponentID compID)
