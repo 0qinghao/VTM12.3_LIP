@@ -53,7 +53,12 @@
 // DEBUG
 #define ENABLE_LIP 0
 #define ENABLE_RMED 0
-#define ENABLE_FILL_LIP_REF 0
+#define ENABLE_FILL_LIP_REF_ENC 0
+#define ENABLE_FILL_LIP_REF_DEC 0
+
+//
+#define REF_BUF_INIT 0
+#define REF_BUF_INIT_VAL -1
 
 // LIP
 #define LIP_RESERVE_SIZE 0

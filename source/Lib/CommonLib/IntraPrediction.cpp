@@ -82,6 +82,12 @@ IntraPrediction::IntraPrediction() : m_currChromaFormat(NUM_CHROMA_FORMAT)
 
   m_piTemp    = nullptr;
   m_pMdlmTemp = nullptr;
+
+#if REF_BUF_INIT
+  memset(m_refBuffer, 0xFF,
+         sizeof(Pel) * MAX_NUM_COMPONENT * NUM_PRED_BUF * (MAX_CU_SIZE * 2 + 1 + MAX_REF_LINE_IDX)
+           * (MAX_CU_SIZE * 2 + 1 + MAX_REF_LINE_IDX));
+#endif
 }
 
 IntraPrediction::~IntraPrediction()
@@ -232,8 +238,8 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   const int srcStride  = m_refBufferStride[compID];
   const int srcHStride = 2;
 
-  uint32_t LIP_MODE_NUM           = 1 << BitsLoopMode;
-  //uint32_t LIP_MODE_NUM           = 3;
+  uint32_t LIP_MODE_NUM = 1 << BitsLoopMode;
+  // uint32_t LIP_MODE_NUM           = 3;
   uint32_t LIP_MODE[LIP_MODE_NUM] = LIP_MODE_LIST;
 
   // TODO
@@ -253,9 +259,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     int Mode = LIP_MODE[xMode];
     switch (Mode)
     {
-    //case (0): bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;//bitnum = xPredIntraPlanar_loop1(srcBuf, piPred); break;
-    case (PLANAR_IDX): bitnum = xPredIntraPlanar_loop1(srcBuf, piPred); break;//bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;
-    case (DC_IDX): bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;//bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;
+    // case (0): bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;//bitnum = xPredIntraPlanar_loop1(srcBuf, piPred);
+    // break;
+    case (PLANAR_IDX):
+      bitnum = xPredIntraPlanar_loop1(srcBuf, piPred);
+      break;   // bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;
+    case (DC_IDX):
+      bitnum = xPredIntraDc_loop1(srcBuf, piPred);
+      break;   // bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;
     default: bitnum = xPredIntraAng_loop1(srcBuf, piPred, channelType, clpRng, Mode); break;
     }
     if (bitnum < Bestbitnum)
@@ -268,9 +279,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
   pu.intraDir[channelType]       = LIP_MODE[BestMode];
   switch (LIP_MODE[BestMode])
   {
-  //case (0): bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;//bitnum = xPredIntraPlanar_loop1(srcBuf, piPred); break;
-  case (PLANAR_IDX): bitnum = xPredIntraPlanar_loop1(srcBuf, piPred); break;//bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;
-  case (DC_IDX): bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;//bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;
+  // case (0): bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;//bitnum = xPredIntraPlanar_loop1(srcBuf, piPred);
+  // break;
+  case (PLANAR_IDX):
+    bitnum = xPredIntraPlanar_loop1(srcBuf, piPred);
+    break;   // bitnum = xPredIntraDc_loop1(srcBuf, piPred); break;
+  case (DC_IDX):
+    bitnum = xPredIntraDc_loop1(srcBuf, piPred);
+    break;   // bitnum = xPredIntraSape_loop1(srcBuf, piPred); break;
   default: bitnum = xPredIntraAng_loop1(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode]); break;
   }
   Bestbitnum = MAX_INT;
@@ -283,9 +299,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
       int Mode = LIP_MODE[xMode];
       switch (Mode)
       {
-      //case (0): bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop); break;
-      case (PLANAR_IDX): bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;
-      case (DC_IDX): bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;
+      // case (0): bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraPlanar_loop(srcBuf,
+      // piPred, loop); break;
+      case (PLANAR_IDX):
+        bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop);
+        break;   // bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;
+      case (DC_IDX):
+        bitnum = xPredIntraDc_loop(srcBuf, piPred, loop);
+        break;   // bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;
       default: bitnum = xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, Mode, loop); break;
       }
       if (bitnum < Bestbitnum)
@@ -297,9 +318,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     pu.intraDirLIP[channelType][loop] = BestMode;
     switch (LIP_MODE[BestMode])
     {
-    //case (0): bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop); break;
-    case (PLANAR_IDX): bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;
-    case (DC_IDX): bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;
+    // case (0): bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;//bitnum = xPredIntraPlanar_loop(srcBuf,
+    // piPred, loop); break;
+    case (PLANAR_IDX):
+      bitnum = xPredIntraPlanar_loop(srcBuf, piPred, loop);
+      break;   // bitnum = xPredIntraDc_loop(srcBuf, piPred, loop); break;
+    case (DC_IDX):
+      bitnum = xPredIntraDc_loop(srcBuf, piPred, loop);
+      break;   // bitnum = xPredIntraSape_loop(srcBuf, piPred, loop); break;
     default: bitnum = xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop); break;
     }
     Bestbitnum = MAX_INT;
@@ -316,9 +342,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
       {
         switch (Mode)
         {
-        //case (0): bitnum += xPredIntraSape_loop(srcBuf, piPred, loop_res); break;//bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
-        case (PLANAR_IDX): bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;//bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
-        case (DC_IDX): bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;//bitnum += xPredIntraSape_loop(srcBuf, piPred, loop_res); break;
+        // case (0): bitnum += xPredIntraSape_loop(srcBuf, piPred, loop_res); break;//bitnum +=
+        // xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
+        case (PLANAR_IDX):
+          bitnum += xPredIntraPlanar_loop(srcBuf, piPred, loop_res);
+          break;   // bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+        case (DC_IDX):
+          bitnum += xPredIntraDc_loop(srcBuf, piPred, loop_res);
+          break;   // bitnum += xPredIntraSape_loop(srcBuf, piPred, loop_res); break;
         default: bitnum += xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, Mode, loop_res); break;
         }
       }
@@ -334,9 +365,14 @@ void IntraPrediction::predIntraAngLIP(const ComponentID compId, PelBuf &piPred, 
     {
       switch (LIP_MODE[BestMode])
       {
-      //case (0): xPredIntraSape_loop(srcBuf, piPred, loop_res); break;//xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;
-      case (PLANAR_IDX): xPredIntraPlanar_loop(srcBuf, piPred, loop_res); break;//xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
-      case (DC_IDX): xPredIntraDc_loop(srcBuf, piPred, loop_res); break;//xPredIntraSape_loop(srcBuf, piPred, loop_res); break;
+      // case (0): xPredIntraSape_loop(srcBuf, piPred, loop_res); break;//xPredIntraPlanar_loop(srcBuf, piPred,
+      // loop_res); break;
+      case (PLANAR_IDX):
+        xPredIntraPlanar_loop(srcBuf, piPred, loop_res);
+        break;   // xPredIntraDc_loop(srcBuf, piPred, loop_res); break;
+      case (DC_IDX):
+        xPredIntraDc_loop(srcBuf, piPred, loop_res);
+        break;   // xPredIntraSape_loop(srcBuf, piPred, loop_res); break;
       default: xPredIntraAng_loop(srcBuf, piPred, channelType, clpRng, LIP_MODE[BestMode], loop_res); break;
       }
     }
@@ -368,23 +404,23 @@ void IntraPrediction::predIntraAngDecLIP(const ComponentID compId, PelBuf &piPre
   const int srcStride  = m_refBufferStride[compID];
   const int srcHStride = 2;
 
-  //uint32_t LIP_MODE_NUM           = 1 << BitsLoopMode;
-  //uint32_t LIP_MODE[8] = LIP_MODE_LIST;
+  // uint32_t LIP_MODE_NUM           = 1 << BitsLoopMode;
+  // uint32_t LIP_MODE[8] = LIP_MODE_LIST;
 
   // TODO
   // const CPelBuf &srcBuf = CPelBuf(getPredictorPtr(compID), srcStride, srcHStride);
-  //const CPelBuf &srcBuf = CPelBuf(getPredictorPtr(compID), srcStride, srcHStride);
+  // const CPelBuf &srcBuf = CPelBuf(getPredictorPtr(compID), srcStride, srcHStride);
   const CPelBuf &srcBuf = CPelBuf(getPredictorPtrLIPUNFILTERED(compID), srcStride, srcHStride);
   const ClpRng & clpRng(pu.cu->cs->slice->clpRng(compID));
 
   int bitnum = 0;
-  int xMode = 0;
-  //int Mode  = 0;
+  int xMode  = 0;
+  // int Mode  = 0;
 
   // TODO
-  //pu.num_loop = num_loop;
-  xMode       = pu.intraDirLIP[channelType][0];
-  //Mode        = LIP_MODE[xMode];
+  // pu.num_loop = num_loop;
+  xMode = pu.intraDirLIP[channelType][0];
+  // Mode        = LIP_MODE[xMode];
 
   const uint32_t stride = piPred.stride;
   Pel *          pred   = piPred.buf;
@@ -400,8 +436,8 @@ void IntraPrediction::predIntraAngDecLIP(const ComponentID compId, PelBuf &piPre
   for (; loop < loop_all; loop++)
   {
     xMode = pu.intraDirLIP[channelType][loop];
-    //Mode  = LIP_MODE[xMode];
-    //pred += stride + 1;
+    // Mode  = LIP_MODE[xMode];
+    // pred += stride + 1;
 
     switch (xMode)
     {
@@ -412,8 +448,8 @@ void IntraPrediction::predIntraAngDecLIP(const ComponentID compId, PelBuf &piPre
     pred += stride + 1;
   }
 
-  //xMode = pu.intraDirLIP[channelType][num_loop - 1];
-  //Mode  = LIP_MODE[xMode];
+  // xMode = pu.intraDirLIP[channelType][num_loop - 1];
+  // Mode  = LIP_MODE[xMode];
   /*for (loop = num_loop - 1; loop < loop_all; loop++)
   {
     pred += stride + 1;
@@ -516,8 +552,8 @@ int IntraPrediction::LIPgetLoopCost(Pel src, Pel pred)
 
 int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
 {
-  const uint32_t width  = pDst.width;
-  const uint32_t height = pDst.height;
+  const uint32_t width   = pDst.width;
+  const uint32_t height  = pDst.height;
   const int      pstride = (pDst.width + pDst.height + 1) * 2;
 
   int bitnum = 0;
@@ -1565,14 +1601,14 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
     for (int x = 0; x < width; x++)
     {
       pDst.at(loop, x + loop) = pDstBuf[x];
-      //bitnum += abs(pSrc.at(loop + pstride, x + loop) - pDstBuf[x]);
+      // bitnum += abs(pSrc.at(loop + pstride, x + loop) - pDstBuf[x]);
       bitnum += LIPgetLoopCost(pSrc.at(loop + pstride, x + loop), pDstBuf[x]);
     }
     for (int y = 1; y < height; y++)
     {
       pDstBuf += dstStride;
       pDst.at(y + loop, loop) = pDstBuf[0];
-      //bitnum += abs(pSrc.at(y + loop + pstride, loop) - pDstBuf[0]);
+      // bitnum += abs(pSrc.at(y + loop + pstride, loop) - pDstBuf[0]);
       bitnum += LIPgetLoopCost(pSrc.at(y + loop + pstride, loop), pDstBuf[0]);
     }
   }
@@ -1580,13 +1616,13 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
   {
     for (int x = 0; x < width; x++)
     {
-      //bitnum += abs(pSrc.at(x + loop + pstride, loop) - pDstBuf[x]);
+      // bitnum += abs(pSrc.at(x + loop + pstride, loop) - pDstBuf[x]);
       bitnum += LIPgetLoopCost(pSrc.at(x + loop + pstride, loop), pDstBuf[x]);
     }
     for (int y = 1; y < height; y++)
     {
       pDstBuf += dstStride;
-      //bitnum += abs(pSrc.at(loop + pstride, y + loop) - pDstBuf[0]);
+      // bitnum += abs(pSrc.at(loop + pstride, y + loop) - pDstBuf[0]);
       bitnum += LIPgetLoopCost(pSrc.at(loop + pstride, y + loop), pDstBuf[0]);
     }
   }
@@ -1616,7 +1652,7 @@ int IntraPrediction::xPredIntraPlanarDec_loop(const CPelBuf &pSrc, PelBuf &pDst,
   {
     topRow[k] = pSrc.at(k + loop + pstride, loop - 1) + xPred[k + 1];
   }
-  //topRow[width] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width - 1];
+  // topRow[width] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width - 1];
   topRow[width] = topRow[width - 1];
 
   CHECK(height > MAX_CU_SIZE, "height greater than limit");
@@ -1625,7 +1661,7 @@ int IntraPrediction::xPredIntraPlanarDec_loop(const CPelBuf &pSrc, PelBuf &pDst,
     xPred += stride;
     leftColumn[k] = pSrc.at(loop - 1 + pstride, k + loop) + xPred[0];
   }
-  //leftColumn[height] = pSrc.at(loop - 1 + pstride, height - 1 + loop) + xPred[0];
+  // leftColumn[height] = pSrc.at(loop - 1 + pstride, height - 1 + loop) + xPred[0];
   leftColumn[height] = leftColumn[height - 1];
 
   // Prepare intermediate variables used in interpolation
@@ -1645,7 +1681,7 @@ int IntraPrediction::xPredIntraPlanarDec_loop(const CPelBuf &pSrc, PelBuf &pDst,
   }
 
   // const uint32_t finalShift = 1 + log2W + log2H;
-  Pel *          pred   = pDst.buf;
+  Pel *pred = pDst.buf;
   pred += loop;
   pred += loop * stride;
 
@@ -1687,7 +1723,7 @@ int IntraPrediction::xPredIntraDcDec_loop(const CPelBuf &pSrc, PelBuf &pDst, int
   const int stride  = pDst.stride;
   const int pstride = (pDst.width + pDst.height + 1) * 2;
   const int denom   = (width == height) ? (width * 2) : std::max(width, height);
-  Pel *          xPred   = LastPred;
+  Pel *     xPred   = LastPred;
 
   int idx, sum = 0;
   int bitnum = 0;
@@ -1844,14 +1880,14 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
   {
     refAbove[x + height] = pSrc.at(x - 1 + loop + pstride, loop - 1) + xPred[x];
   }
-  //refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width];
+  // refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width];
   refAbove[width + height + 1] = refAbove[width + height];
   for (int y = 0; y <= height; y++)
   {
     refLeft[y + width] = pSrc.at(loop - 1 + pstride, y - 1 + loop) + xPred[0];
     xPred += stride;
   }
-  //refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
+  // refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
   refLeft[height + width + 1] = refLeft[height + width];
   refMain                     = bIsModeVer ? refAbove + height : refLeft + width;
   refSide                     = bIsModeVer ? refLeft + width : refAbove + height;
@@ -2809,12 +2845,12 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
 
   const bool noShift   = pcv.noChroma2x2 && area.width == 4;   // don't shift on the lowest level (chroma not-split)
   const int  unitWidth = tuWidth <= 2 && cu.ispMode && isLuma(area.compID)
-                          ? tuWidth
-                          : pcv.minCUWidth >> (noShift ? 0 : getComponentScaleX(area.compID, sps.getChromaFormatIdc()));
-  const int unitHeight =
+                           ? tuWidth
+                           : pcv.minCUWidth >> (noShift ? 0 : getComponentScaleX(area.compID, sps.getChromaFormatIdc()));
+  const int  unitHeight =
     tuHeight <= 2 && cu.ispMode && isLuma(area.compID)
-      ? tuHeight
-      : pcv.minCUHeight >> (noShift ? 0 : getComponentScaleY(area.compID, sps.getChromaFormatIdc()));
+       ? tuHeight
+       : pcv.minCUHeight >> (noShift ? 0 : getComponentScaleY(area.compID, sps.getChromaFormatIdc()));
 
   const int totalAboveUnits    = (predSize + (unitWidth - 1)) / unitWidth;
   const int totalLeftUnits     = (predHSize + (unitHeight - 1)) / unitHeight;
@@ -3078,13 +3114,13 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
         if (p < tuWidth)
         {
           ptrDst[offset] = coeff[q * tuWidth + p];
-          //printf("residual = %d\n", ptrDst[offset]);
+          // printf("residual = %d\n", ptrDst[offset]);
           offset++;
         }
         else
         {
           ptrDst[offset] = ptrDst[offset - 1];   ////ʣ��λ��ȫ���������һ����Чֵ
-          //printf("residual = %d\n", ptrDst[offset]);
+          // printf("residual = %d\n", ptrDst[offset]);
           offset++;
         }
       }
@@ -3094,13 +3130,12 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
       for (int p = 0; p < predStride; p++)
       {
         ptrDst[offset] = ptrDst[offset - predStride];   //�е���չ���Ϊ��������Ϸ����Ǹ�ֵ
-        //printf("residual = %d\n", ptrDst[offset]);
+        // printf("residual = %d\n", ptrDst[offset]);
         offset++;
       }
     }
   }
 }
-
 
 void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refBufUnfiltered, const CompArea &area,
                                                const CodingUnit &cu)
@@ -3173,10 +3208,16 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
     // Fill border with DC value
     for (int j = 0; j <= predSize + multiRefIdx; j++)
     {
+      // #if REF_BUF_INIT
+      //       assert(ptrDst[j] == REF_BUF_INIT_VAL);
+      // #endif
       ptrDst[j] = valueDC;
     }
     for (int i = 0; i <= predHSize + multiRefIdx; i++)
     {
+      // #if REF_BUF_INIT
+      //       assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+      // #endif
       ptrDst[i + predStride] = valueDC;
     }
   }
@@ -3186,10 +3227,16 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
     ptrSrc = srcBuf - (1 + multiRefIdx) * srcStride - (1 + multiRefIdx);
     for (int j = 0; j <= predSize + multiRefIdx; j++)
     {
+      // #if REF_BUF_INIT
+      //       assert(ptrDst[j] == REF_BUF_INIT_VAL);
+      // #endif
       ptrDst[j] = ptrSrc[j];
     }
     for (int i = 0; i <= predHSize + multiRefIdx; i++)
     {
+      // #if REF_BUF_INIT
+      //       assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+      // #endif
       ptrDst[i + predStride] = ptrSrc[i * srcStride];
     }
   }
@@ -3200,10 +3247,18 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
     ptrDst = refBufUnfiltered;
     if (neighborFlags[totalLeftUnits])
     {
+      // #if REF_BUF_INIT
+      //       assert(ptrDst[0] == REF_BUF_INIT_VAL);
+      //       assert(ptrDst[predStride] == REF_BUF_INIT_VAL);
+      // #endif
       ptrDst[0]          = ptrSrc[0];
       ptrDst[predStride] = ptrSrc[0];
       for (int i = 1; i <= multiRefIdx; i++)
       {
+        // #if REF_BUF_INIT
+        //         assert(ptrDst[i] == REF_BUF_INIT_VAL);
+        //         assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+        // #endif
         ptrDst[i]              = ptrSrc[i];
         ptrDst[i + predStride] = ptrSrc[i * srcStride];
       }
@@ -3218,6 +3273,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       {
         for (int i = 0; i < unitHeight; i++)
         {
+          // #if REF_BUF_INIT
+          //           assert(ptrDst[i] == REF_BUF_INIT_VAL);
+          // #endif
           ptrDst[i] = ptrSrc[i * srcStride];
         }
       }
@@ -3230,6 +3288,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       int lastSample = (predHSize % unitHeight == 0) ? unitHeight : predHSize % unitHeight;
       for (int i = 0; i < lastSample; i++)
       {
+        // #if REF_BUF_INIT
+        //         assert(ptrDst[i] == REF_BUF_INIT_VAL);
+        // #endif
         ptrDst[i] = ptrSrc[i * srcStride];
       }
     }
@@ -3243,6 +3304,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       {
         for (int j = 0; j < unitWidth; j++)
         {
+          // #if REF_BUF_INIT
+          //           assert(ptrDst[j] == REF_BUF_INIT_VAL);
+          // #endif
           ptrDst[j] = ptrSrc[j];
         }
       }
@@ -3255,6 +3319,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       int lastSample = (predSize % unitWidth == 0) ? unitWidth : predSize % unitWidth;
       for (int j = 0; j < lastSample; j++)
       {
+        // #if REF_BUF_INIT
+        //         assert(ptrDst[j] == REF_BUF_INIT_VAL);
+        // #endif
         ptrDst[j] = ptrSrc[j];
       }
     }
@@ -3293,6 +3360,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       // fill left column
       for (int i = lastRow; i > firstAvailRow; i--)
       {
+        // #if REF_BUF_INIT
+        //         assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+        // #endif
         ptrDst[i + predStride] = firstAvailSample;
       }
       // fill top row
@@ -3300,6 +3370,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       {
         for (int j = 0; j < firstAvailCol; j++)
         {
+          // #if REF_BUF_INIT
+          //           assert(ptrDst[j] == REF_BUF_INIT_VAL);
+          // #endif
           ptrDst[j] = firstAvailSample;
         }
       }
@@ -3334,6 +3407,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
         {
           for (int i = lastAvailRow - 1; i >= lastAvailRow - unitHeight; i--)
           {
+            // #if REF_BUF_INIT
+            //             assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+            // #endif
             ptrDst[i + predStride] = lastAvailSample;
           }
         }
@@ -3341,10 +3417,16 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
         {
           for (int i = 0; i < multiRefIdx + 1; i++)
           {
+            // #if REF_BUF_INIT
+            //             assert(ptrDst[i + predStride] == REF_BUF_INIT_VAL);
+            // #endif
             ptrDst[i + predStride] = lastAvailSample;
           }
           for (int j = 0; j < multiRefIdx + 1; j++)
           {
+            // #if REF_BUF_INIT
+            //             assert(ptrDst[j] == REF_BUF_INIT_VAL);
+            // #endif
             ptrDst[j] = lastAvailSample;
           }
         }
@@ -3354,6 +3436,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
             (currUnit == totalUnits - 1) ? ((predSize % unitWidth == 0) ? unitWidth : predSize % unitWidth) : unitWidth;
           for (int j = lastAvailCol + 1; j <= lastAvailCol + numSamplesInUnit; j++)
           {
+            // #if REF_BUF_INIT
+            //             assert(ptrDst[j] == REF_BUF_INIT_VAL);
+            // #endif
             ptrDst[j] = lastAvailSample;
           }
         }
@@ -3362,10 +3447,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       currUnit++;
     }
   }
- 
-  ptrSrc =
-    srcBuf;   //
-  int offset = 0;   //
+
+  ptrSrc     = srcBuf;   //
+  int offset = 0;        //
   // int maxsize = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//
   ptrDst = refBufUnfiltered + predStride + predHSize + 1;   //
   for (int q = 0; q < predStride; q++)
@@ -3376,11 +3460,17 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
       {
         if (p < tuWidth)
         {
+          // #if REF_BUF_INIT
+          //           assert(ptrDst[offset] == REF_BUF_INIT_VAL);
+          // #endif
           ptrDst[offset] = ptrSrc[q * srcStride + p];
           offset++;
         }
         else
         {
+          // #if REF_BUF_INIT
+          //           assert(ptrDst[offset] == REF_BUF_INIT_VAL);
+          // #endif
           ptrDst[offset] = ptrDst[offset - 1];   //
           offset++;
         }
@@ -3390,6 +3480,9 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
     {
       for (int p = 0; p < predStride; p++)
       {
+        // #if REF_BUF_INIT
+        //         assert(ptrDst[offset] == REF_BUF_INIT_VAL);
+        // #endif
         ptrDst[offset] = ptrDst[offset - predStride];   //
         offset++;
       }
@@ -3414,7 +3507,7 @@ void IntraPrediction::initIntraPatternChTypeDECLIP(TransformUnit &tu, const Comp
   setReferenceArrayLengths(area);
   const TCoeff *coeff = tu.getCoeffs(compID).buf;
 // ----- Step 1: unfiltered reference samples -----
-#if ENABLE_FILL_LIP_REF
+#if ENABLE_FILL_LIP_REF_DEC
   xFillReferenceSamplesDECLIP(cs.picture->getRecoBuf(area), cs.picture->getResiBuf(area), refBufUnfiltered, area, cu,
                               coeff);
 #else
@@ -3444,7 +3537,7 @@ void IntraPrediction::initIntraPatternChTypeLIP(const CodingUnit &cu, const Comp
   setReferenceArrayLengths(area);
 
 // ----- Step 1: unfiltered reference samples -----
-#if ENABLE_FILL_LIP_REF
+#if ENABLE_FILL_LIP_REF_ENC
   xFillReferenceSamplesLIP(cs.picture->getOrigBuf(area), refBufUnfiltered, area, cu);
 #else
   xFillReferenceSamples(cs.picture->getRecoBuf(area), refBufUnfiltered, area, cu);
@@ -3763,7 +3856,7 @@ void IntraPrediction::xFilterReferenceSamplesLIP(const Pel *refBufUnfiltered, Pe
   int Lnumber = (tuWidthtemp >= tuHeighttemp) ? (tuHeighttemp - 1) : (tuWidthtemp - 1);   //
   // const int minshape = (tuWidth >= tuHeight) ? tuHeight : tuWidth;//
   // const int maxshape = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//
-  int predLStride = (int)predStride;
+  int predLStride = (int) predStride;
 
   for (int q = 0; q < Lnumber; q++)   //
   {
@@ -3785,7 +3878,7 @@ void IntraPrediction::xFilterReferenceSamplesLIP(const Pel *refBufUnfiltered, Pe
       }
     }
     //
-    for (int i = 0; i < predLStride * (int)predStride; i += (int)predStride)
+    for (int i = 0; i < predLStride * (int) predStride; i += (int) predStride)
     {
       if (i < tuHeighttemp * predStride)
       {
@@ -4635,4 +4728,3 @@ void IntraPrediction::reorderPLT(CodingStructure &cs, Partitioner &partitioner, 
     }
   }
 }
-
