@@ -1000,8 +1000,8 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
   Pel *refMain;
   Pel *refSide;
 
-  Pel refAbove[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
-  Pel refLeft[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refAbove[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refLeft[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
 
   // Initialize the Main and Left reference array.
 
@@ -1009,14 +1009,22 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
   {
     refAbove[x + height] = pSrc.at(x, 0);
   }
-  refAbove[width + height + 1] = pSrc.at(width, 0);
+  // refAbove[width + height + 1] = pSrc.at(width, 0);
+  for (int x = width + 1; x <= width + height; x++)
+  {
+    refAbove[x + height] = refAbove[width + height];
+  }
   for (int y = 0; y <= height; y++)
   {
     refLeft[y + width] = pSrc.at(y, 1);
   }
-  refLeft[height + width + 1] = pSrc.at(height, 1);
-  refMain                     = bIsModeVer ? refAbove + height : refLeft + width;
-  refSide                     = bIsModeVer ? refLeft + width : refAbove + height;
+  // refLeft[height + width + 1] = pSrc.at(height, 1);
+  for (int y = height + 1; y <= width + height; y++)
+  {
+    refLeft[y + width] = refLeft[width + height];
+  }
+  refMain = bIsModeVer ? refAbove + height : refLeft + width;
+  refSide = bIsModeVer ? refLeft + width : refAbove + height;
 
   // Extend the Main reference to the left.
   int sizeSide = bIsModeVer ? height : width;
@@ -1336,22 +1344,30 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
   Pel *refMain;
   Pel *refSide;
 
-  Pel refAbove[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
-  Pel refLeft[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refAbove[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refLeft[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
 
   // Initialize the Main and Left reference array.
   for (int x = 0; x <= width; x++)
   {
     refAbove[x + height] = pSrc.at(x - 1 + loop + pstride, loop - 1);
   }
-  refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1);
+  // refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1);
+  for (int x = width + 1; x <= width + height; x++)
+  {
+    refAbove[x + height] = refAbove[width + height];
+  }
   for (int y = 0; y <= height; y++)
   {
     refLeft[y + width] = pSrc.at(loop - 1 + pstride, y - 1 + loop);
   }
-  refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
-  refMain                     = bIsModeVer ? refAbove + height : refLeft + width;
-  refSide                     = bIsModeVer ? refLeft + width : refAbove + height;
+  // refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
+  for (int y = height + 1; y <= width + height; y++)
+  {
+    refLeft[y + width] = refLeft[width + height];
+  }
+  refMain = bIsModeVer ? refAbove + height : refLeft + width;
+  refSide = bIsModeVer ? refLeft + width : refAbove + height;
 
   // Extend the Main reference to the left.
   int sizeSide = bIsModeVer ? height : width;
@@ -1884,8 +1900,8 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
   Pel *refMain;
   Pel *refSide;
 
-  Pel refAbove[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
-  Pel refLeft[2 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refAbove[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
+  Pel refLeft[3 * MAX_CU_SIZE + 3 + 33 * MAX_REF_LINE_IDX];
 
   // Initialize the Main and Left reference array.
   for (int x = 0; x <= width; x++)
@@ -1893,16 +1909,24 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
     refAbove[x + height] = pSrc.at(x - 1 + loop + pstride, loop - 1) + xPred[x];
   }
   // refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width];
-  refAbove[width + height + 1] = refAbove[width + height];
+  // refAbove[width + height + 1] = refAbove[width + height];
+  for (int x = width + 1; x <= width + height; x++)
+  {
+    refAbove[x + height] = refAbove[width + height];
+  }
   for (int y = 0; y <= height; y++)
   {
     refLeft[y + width] = pSrc.at(loop - 1 + pstride, y - 1 + loop) + xPred[0];
     xPred += stride;
   }
   // refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
-  refLeft[height + width + 1] = refLeft[height + width];
-  refMain                     = bIsModeVer ? refAbove + height : refLeft + width;
-  refSide                     = bIsModeVer ? refLeft + width : refAbove + height;
+  // refLeft[height + width + 1] = refLeft[height + width];
+  for (int y = height + 1; y <= width + height; y++)
+  {
+    refLeft[y + width] = refLeft[width + height];
+  }
+  refMain = bIsModeVer ? refAbove + height : refLeft + width;
+  refSide = bIsModeVer ? refLeft + width : refAbove + height;
 
   // Extend the Main reference to the left.
   int sizeSide = bIsModeVer ? height : width;
