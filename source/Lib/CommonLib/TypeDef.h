@@ -60,7 +60,7 @@
 #define BitsLoopMode 3
 #define LIP_MODE_LIST                                                                                                  \
   {                                                                                                                    \
-    0, 1, 2, 10, 18, 34, 50, 66                                                                                                        \
+    0, 1, 2, 10, 18, 34, 50, 66                                                                                                      \
   }
 
 // #define BitsLoopMode 1

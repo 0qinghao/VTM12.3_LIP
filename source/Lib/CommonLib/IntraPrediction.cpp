@@ -518,7 +518,8 @@ int IntraPrediction::xPredIntraPlanar_loop1(const CPelBuf &pSrc, PelBuf &pDst)
 {
   const uint32_t width  = pDst.width;
   const uint32_t height = pDst.height;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int      pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   int bitnum = 0;
 
@@ -598,7 +599,8 @@ int IntraPrediction::xPredIntraPlanar_loop(const CPelBuf &pSrc, PelBuf &pDst, in
 {
   const uint32_t width   = pDst.width - loop;
   const uint32_t height  = pDst.height - loop;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   int bitnum = 0;
 
@@ -681,7 +683,8 @@ int IntraPrediction::xPredIntraDc_loop1(const CPelBuf &pSrc, PelBuf &pDst)
   const int width   = pDst.width;
   const int height  = pDst.height;
   const int stride  = pDst.stride;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
   const int denom   = (width == height) ? (width * 2) : std::max(width, height);
 
   int idx, sum = 0;
@@ -729,7 +732,8 @@ int IntraPrediction::xPredIntraDc_loop(const CPelBuf &pSrc, PelBuf &pDst, int lo
   const int width   = pDst.width - loop;
   const int height  = pDst.height - loop;
   const int stride  = pDst.stride;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
   const int denom   = (width == height) ? (width * 2) : std::max(width, height);
 
   int idx, sum = 0;
@@ -780,7 +784,8 @@ int IntraPrediction::xPredIntraSape_loop1(const CPelBuf &pSrc, PelBuf &pDst)
   const uint32_t width   = pDst.width;
   const uint32_t height  = pDst.height;
   const int      stride  = pDst.stride;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   int  bitnum = 0;
   Pel *pred   = pDst.buf;
@@ -862,7 +867,8 @@ int IntraPrediction::xPredIntraSape_loop(const CPelBuf &pSrc, PelBuf &pDst, int 
   const uint32_t width   = pDst.width - loop;
   const uint32_t height  = pDst.height - loop;
   const int      stride  = pDst.stride;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int      pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   int  bitnum = 0;
   Pel *pred   = pDst.buf;
@@ -929,7 +935,8 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
 
   const bool bIsModeVer = Mode >= DIA_IDX;
   // const int  multiRefIdx    = m_ipaParam.multiRefIndex;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   const int intraPredAngleMode = (bIsModeVer) ? Mode - VER_IDX : -(Mode - HOR_IDX);
 
@@ -1264,7 +1271,8 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
 
   const bool bIsModeVer = Mode >= DIA_IDX;
   // const int  multiRefIdx    = m_ipaParam.multiRefIndex;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
 
   const int intraPredAngleMode = (bIsModeVer) ? Mode - VER_IDX : -(Mode - HOR_IDX);
 
@@ -1598,7 +1606,8 @@ int IntraPrediction::xPredIntraPlanarDec_loop(const CPelBuf &pSrc, PelBuf &pDst,
 {
   const uint32_t width   = pDst.width - loop;
   const uint32_t height  = pDst.height - loop;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int      pstride = pDst.width * 4 + pDst.height * 2 + 3;
   Pel *          xPred   = LastPred;
   const uint32_t stride  = pDst.stride;
 
@@ -1685,7 +1694,8 @@ int IntraPrediction::xPredIntraDcDec_loop(const CPelBuf &pSrc, PelBuf &pDst, int
   const int width   = pDst.width - loop;
   const int height  = pDst.height - loop;
   const int stride  = pDst.stride;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int      pstride = pDst.width * 4 + pDst.height * 2 + 3;
   const int denom   = (width == height) ? (width * 2) : std::max(width, height);
   Pel *          xPred   = LastPred;
 
@@ -1738,7 +1748,8 @@ int IntraPrediction::xPredIntraSapeDec_loop(const CPelBuf &pSrc, PelBuf &pDst, i
   const uint32_t width   = pDst.width - loop;
   const uint32_t height  = pDst.height - loop;
   const int      stride  = pDst.stride;
-  const int      pstride = (pDst.width + pDst.height + 1) * 2;
+  const int      pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int      pstride = pDst.width * 4 + pDst.height * 2 + 3;
   Pel *          xPred   = LastPred;
 
   int  bitnum = 0;
@@ -1806,7 +1817,8 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
 
   const bool bIsModeVer = Mode >= DIA_IDX;
   // const int  multiRefIdx    = m_ipaParam.multiRefIndex;
-  const int pstride = (pDst.width + pDst.height + 1) * 2;
+  const int pstride = (pDst.width + pDst.height + 1) * 4;
+  //const int pstride = pDst.width * 4 + pDst.height * 2 + 3;
   const int stride  = pDst.stride;
   Pel *     xPred   = LastPred;
 
@@ -3068,8 +3080,8 @@ void IntraPrediction::xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const 
   // }
   int offset = 0;   //一行一列参考像素所占用的位置
   // int maxsize = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//表示当前块中L型的数量
-  ptrDst = refBufUnfiltered + predStride + predHSize + 1;   //指针指到refBufUnfiltered中填充完毕后一个空位
-  for (int q = 0; q < predStride; q++)
+  ptrDst = refBufUnfiltered + (predStride + predHSize + 1) * 2;   //指针指到refBufUnfiltered中填充完毕后一个空位
+  for (int q = 0; q < (predHSize + 1); q++)
   {
     if (q < tuHeight)
     {
@@ -3367,8 +3379,8 @@ void IntraPrediction::xFillReferenceSamplesLIP(const CPelBuf &origBuf, Pel *refB
     srcBuf;   //
   int offset = 0;   //
   // int maxsize = (tuWidth >= tuHeight) ? tuWidth : tuHeight;//
-  ptrDst = refBufUnfiltered + predStride + predHSize + 1;   //
-  for (int q = 0; q < predStride; q++)
+  ptrDst = refBufUnfiltered + (predStride + predHSize + 1) * 2;   //
+  for (int q = 0; q < (predHSize + 1); q++)
   {
     if (q < tuHeight)
     {
