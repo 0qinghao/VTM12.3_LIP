@@ -51,10 +51,10 @@
 #include <cassert>
 
 // DEBUG
-#define ENABLE_LIP 0
+#define ENABLE_LIP 1
 #define ENABLE_RMED 0
-#define ENABLE_FILL_LIP_REF_ENC 0
-#define ENABLE_FILL_LIP_REF_DEC 0
+#define ENABLE_FILL_LIP_REF_ENC 1
+#define ENABLE_FILL_LIP_REF_DEC 1
 
 //
 #define REF_BUF_INIT 0
@@ -68,7 +68,7 @@
 #define BitsLoopMode 3
 #define LIP_MODE_LIST                                                                                                  \
   {                                                                                                                    \
-    0, 1, 2, 10, 18, 34, 50, 66                                                                                                      \
+    0, 1, 2, 10, 18, 34, 50, 66                                                                                        \
   }
 
 // #define BitsLoopMode 1
