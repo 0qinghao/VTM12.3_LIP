@@ -52,7 +52,7 @@
 
 // DEBUG
 #define ENABLE_LIP 1
-#define ENABLE_RMED 0
+#define ENABLE_RMED 1
 #define ENABLE_FILL_LIP_REF_ENC 1
 #define ENABLE_FILL_LIP_REF_DEC 1
 
