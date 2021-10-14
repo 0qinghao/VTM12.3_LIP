@@ -1010,7 +1010,7 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
     refAbove[x + height] = pSrc.at(x, 0);
   }
   // refAbove[width + height + 1] = pSrc.at(width, 0);
-  for (int x = width + 1; x <= width + height; x++)
+  for (int x = width + 1; x <= width + height + 2; x++)
   {
     refAbove[x + height] = refAbove[width + height];
   }
@@ -1019,7 +1019,7 @@ int IntraPrediction::xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, cons
     refLeft[y + width] = pSrc.at(y, 1);
   }
   // refLeft[height + width + 1] = pSrc.at(height, 1);
-  for (int y = height + 1; y <= width + height; y++)
+  for (int y = height + 1; y <= width + height + 2; y++)
   {
     refLeft[y + width] = refLeft[width + height];
   }
@@ -1353,7 +1353,7 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
     refAbove[x + height] = pSrc.at(x - 1 + loop + pstride, loop - 1);
   }
   // refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1);
-  for (int x = width + 1; x <= width + height; x++)
+  for (int x = width + 1; x <= width + height + 2; x++)
   {
     refAbove[x + height] = refAbove[width + height];
   }
@@ -1362,7 +1362,7 @@ int IntraPrediction::xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const
     refLeft[y + width] = pSrc.at(loop - 1 + pstride, y - 1 + loop);
   }
   // refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
-  for (int y = height + 1; y <= width + height; y++)
+  for (int y = height + 1; y <= width + height + 2; y++)
   {
     refLeft[y + width] = refLeft[width + height];
   }
@@ -1910,7 +1910,7 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
   }
   // refAbove[width + height + 1] = pSrc.at(width - 1 + loop + pstride, loop - 1) + xPred[width];
   // refAbove[width + height + 1] = refAbove[width + height];
-  for (int x = width + 1; x <= width + height; x++)
+  for (int x = width + 1; x <= width + height + 2; x++)
   {
     refAbove[x + height] = refAbove[width + height];
   }
@@ -1921,7 +1921,7 @@ int IntraPrediction::xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, co
   }
   // refLeft[height + width + 1] = pSrc.at(loop - 1 + pstride, height - 1 + loop);
   // refLeft[height + width + 1] = refLeft[height + width];
-  for (int y = height + 1; y <= width + height; y++)
+  for (int y = height + 1; y <= width + height + 2; y++)
   {
     refLeft[y + width] = refLeft[width + height];
   }
