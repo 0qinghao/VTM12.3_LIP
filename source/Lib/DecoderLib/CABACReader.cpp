@@ -1385,11 +1385,13 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
     return;
   }
 
-  cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
-  int      numBlocks    = CU::getNumPUs(cu);
+  int      numBlocks = CU::getNumPUs(cu);
   unsigned mpm_pred[NUM_MOST_PROBABLE_MODES];   // mpm_idx / rem_intra_luma_pred_mode
+#if ENABLE_LIP
+  cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
 
   if (cu.firstPU->LIPPUFlag == false)
+#endif
   {
     mip_flag(cu);
     if (cu.mipFlag)
@@ -1477,6 +1479,7 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
       pu = pu->next;
     }
   }
+#if ENABLE_LIP
   else
   {
     uint32_t        LIP_MODE[1 << BitsLoopMode] = LIP_MODE_LIST;
@@ -1513,6 +1516,7 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
       pu              = pu->next;
     }
   }
+#endif
 }
 
 void CABACReader::intra_chroma_pred_modes(CodingUnit &cu)
@@ -3090,13 +3094,14 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
     }
   }
 
+#if ENABLE_RMED
   // int CoeffProcessFlag = m_BinDecoder.decodeBinEP();
   int CoeffProcessFlag = m_BinDecoder.decodeBin(cctx.CoeffProcessCtxId());
   if (CoeffProcessFlag)
   {
-    int  k, l;
-    uint uiWidth  = tu.blocks[compID].width;
-    uint uiHeight = tu.blocks[compID].height;
+    int      k, l;
+    uint32_t uiWidth  = tu.blocks[compID].width;
+    uint32_t uiHeight = tu.blocks[compID].height;
     for (k = 1; k < uiHeight; k++)
     {
       for (l = 1; l < uiWidth; l++)
@@ -3119,6 +3124,7 @@ void CABACReader::residual_coding(TransformUnit &tu, ComponentID compID, CUCtx &
       }
     }
   }
+#endif
 }
 
 void CABACReader::ts_flag(TransformUnit &tu, ComponentID compID)

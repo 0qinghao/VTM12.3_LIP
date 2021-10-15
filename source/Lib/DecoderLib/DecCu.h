@@ -83,6 +83,7 @@ protected:
   void xReconIntraQT      ( CodingUnit&      cu );
 
   void xIntraRecBlk       ( TransformUnit&   tu, const ComponentID compID );
+  void xIntraRecBlkLIP    ( TransformUnit&   tu, const ComponentID compID );
   void xIntraRecACTBlk(TransformUnit&   tu);
   void xDecodeInterTU     ( TransformUnit&   tu, const ComponentID compID );
 

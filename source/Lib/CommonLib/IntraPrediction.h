@@ -125,10 +125,18 @@ protected:
   int  xPredIntraPlanar_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop);
   int  xPredIntraDc_loop1(const CPelBuf &pSrc, PelBuf &pDst);
   int  xPredIntraDc_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop);
+  int  xPredIntraSape_loop1(const CPelBuf &pSrc, PelBuf &pDst);
+  int  xPredIntraSape_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop);
   int  xPredIntraAng_loop1(const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const ClpRng &clpRng,
                            int Mode);
   int  xPredIntraAng_loop(const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const ClpRng &clpRng,
                           int Mode, int loop);
+
+  int xPredIntraPlanarDec_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop, Pel *LastPred);
+  int xPredIntraDcDec_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop, Pel *LastPred);
+  int xPredIntraSapeDec_loop(const CPelBuf &pSrc, PelBuf &pDst, int loop, Pel *LastPred);
+  int xPredIntraAngDec_loop(const CPelBuf &pSrc, PelBuf &pDst, const ChannelType channelType, const ClpRng &clpRng,
+                            int Mode, int loop, Pel *LastPred);
 
   void initPredIntraParams(const PredictionUnit &pu, const CompArea compArea, const SPS &sps);
 
@@ -142,6 +150,7 @@ protected:
                                int multiRefIdx);
   void xFillReferenceSamplesLIP(const CPelBuf &recoBuf, Pel *refBufUnfiltered, const CompArea &area,
                                 const CodingUnit &cu);
+  void xFillReferenceSamplesDECLIP(const CPelBuf &recoBuf, const CPelBuf &resiBuf, Pel *refBufUnfiltered, const CompArea &area, const CodingUnit &cu, const TCoeff *coeff);                              
   void xFilterReferenceSamplesLIP(const Pel *refBufUnfiltered, Pel *refBufFiltered, const CompArea &area,
                                   const SPS &sps, int multiRefIdx);
 
@@ -170,6 +179,7 @@ public:
 
   void predIntraAng(const ComponentID compId, PelBuf &piPred, const PredictionUnit &pu);
   void predIntraAngLIP(const ComponentID compId, PelBuf &piPred, PredictionUnit &pu);
+  void predIntraAngDecLIP(const ComponentID compId, PelBuf &piPred, const PredictionUnit &pu);
   Pel *getPredictorPtr(const ComponentID compId)
   {
     return m_refBuffer[compId][m_ipaParam.refFilterFlag ? PRED_BUF_FILTERED : PRED_BUF_UNFILTERED];
@@ -189,6 +199,10 @@ public:
     const CodingUnit &cu, const CompArea &area,
     const bool forceRefFilterFlag = false);   // use forceRefFilterFlag to get both filtered and unfiltered buffers
   void initIntraPatternChTypeLIP(
+    const CodingUnit &cu, const CompArea &area,
+    const bool forceRefFilterFlag = false);   // use forceRefFilterFlag to get both filtered and unfiltered buffers
+  void initIntraPatternChTypeDECLIP(
+    TransformUnit &tu, const ComponentID compID, 
     const CodingUnit &cu, const CompArea &area,
     const bool forceRefFilterFlag = false);   // use forceRefFilterFlag to get both filtered and unfiltered buffers
 
