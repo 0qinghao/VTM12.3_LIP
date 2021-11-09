@@ -665,6 +665,11 @@ unsigned DeriveCtx::CtxMipFlag(const CodingUnit &cu)
   return ctxId;
 }
 
+unsigned DeriveCtx::CtxLIPFlag()
+{
+  return 0;
+}
+
 unsigned DeriveCtx::CtxPltCopyFlag(const unsigned prevRunType, const unsigned dist)
 {
   uint8_t *ucCtxLut = (prevRunType == PLT_RUN_INDEX) ? g_paletteRunLeftLut : g_paletteRunTopLut;

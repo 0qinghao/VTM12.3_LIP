@@ -3640,8 +3640,8 @@ void CABACWriter::code_unary_fixed(unsigned symbol, unsigned ctxId, unsigned una
 
 void CABACWriter::LIP_flag(bool LIPPUFlag)
 {
-  // unsigned ctxId = DeriveCtx::CtxMipFlag(cu);
-  m_BinEncoder.encodeBinEP(LIPPUFlag);
+  unsigned ctxId = DeriveCtx::CtxLIPFlag();
+  m_BinEncoder.encodeBin(LIPPUFlag, Ctx::LIPFlag(ctxId));
 }
 void CABACWriter::mip_flag(const CodingUnit &cu)
 {

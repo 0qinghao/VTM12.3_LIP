@@ -196,6 +196,7 @@ public:
   static const CtxSet   CclmModeIdx;
   static const CtxSet   IntraChromaPredMode;
   static const CtxSet   MipFlag;
+  static const CtxSet   LIPFlag;
   static const CtxSet   DeltaQP;
   static const CtxSet   InterDir;
   static const CtxSet   RefPic;

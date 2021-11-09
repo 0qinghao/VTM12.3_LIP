@@ -325,6 +325,13 @@ const CtxSet ContextSetCfg::MipFlag = ContextSetCfg::addCtxSet
   {  33,  49,  50,  25, },
   {   9,  10,   9,   6, },
 });
+const CtxSet ContextSetCfg::LIPFlag = ContextSetCfg::addCtxSet
+({
+  {  56,  57,  50,  26, },
+  {  41,  57,  58,  26, },
+  {  33,  49,  50,  25, },
+  {   9,  10,   9,   6, },
+});
 
 const CtxSet ContextSetCfg::DeltaQP = ContextSetCfg::addCtxSet
 ({

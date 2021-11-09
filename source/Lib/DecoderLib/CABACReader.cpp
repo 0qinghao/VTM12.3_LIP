@@ -1388,7 +1388,8 @@ void CABACReader::intra_luma_pred_modes(CodingUnit &cu)
   int      numBlocks = CU::getNumPUs(cu);
   unsigned mpm_pred[NUM_MOST_PROBABLE_MODES];   // mpm_idx / rem_intra_luma_pred_mode
 #if ENABLE_LIP
-  cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
+  // cu.firstPU->LIPPUFlag = m_BinDecoder.decodeBinEP();
+  cu.firstPU->LIPPUFlag = LIP_flag();
 
   if (cu.firstPU->LIPPUFlag == false)
 #endif
@@ -3776,7 +3777,11 @@ void CABACReader::mip_flag(CodingUnit &cu)
   cu.mipFlag     = m_BinDecoder.decodeBin(Ctx::MipFlag(ctxId));
   DTRACE(g_trace_ctx, D_SYNTAX, "mip_flag() pos=(%d,%d) mode=%d\n", cu.lumaPos().x, cu.lumaPos().y, cu.mipFlag ? 1 : 0);
 }
-
+bool CABACReader::LIP_flag()
+{
+  unsigned ctxId = DeriveCtx::CtxLIPFlag();
+  return m_BinDecoder.decodeBin(Ctx::LIPFlag(ctxId));
+}
 void CABACReader::mip_pred_modes(CodingUnit &cu)
 {
   RExt__DECODER_DEBUG_BIT_STATISTICS_CREATE_SET(STATS__CABAC_BITS__OTHER);
